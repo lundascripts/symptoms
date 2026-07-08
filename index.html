@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>Tagebuch</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>Tagebuch</h1>
+    <div class="tabs">
+      <button class="tab-btn" data-tab="note"    onclick="switchTab('note')">📝 Notiz</button>
+      <button class="tab-btn" data-tab="meal"    onclick="switchTab('meal')">🍽 Mahlzeit</button>
+      <button class="tab-btn" data-tab="symptom" onclick="switchTab('symptom')">📋 Symptom</button>
+      <button class="tab-btn" data-tab="history" onclick="switchTab('history')">📅 Verlauf</button>
+      <button class="tab-btn" data-tab="trends"  onclick="switchTab('trends')">📈 Trends</button>
+      <button class="tab-btn" data-tab="mehr"    onclick="switchTab('mehr')">⚙ Mehr</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ── Notiz ── -->
+    <div id="view-note" class="view">
+      <div class="card">
+        <div class="card-title note-title">Notiz zum heutigen Tag</div>
+        <div class="field">
+          <label>Was ist heute los?</label>
+          <textarea id="day-note-input" placeholder="z.B. gestresst, schlecht geschlafen, Sport gemacht, Antibiotikum…" style="height:120px"></textarea>
+        </div>
+        <div class="note-save-row">
+          <button class="btn-save btn-note" style="margin-top:0" onclick="saveDayNote()">Notiz speichern</button>
+          <span class="note-saved-hint" id="note-saved-hint">Gespeichert ✓</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Mahlzeit ── -->
+    <div id="view-meal" class="view">
+      <div class="card">
+        <div class="card-title meal-title">Mahlzeit erfassen</div>
+
+        <div class="field">
+          <label>Datum & Uhrzeit</label>
+          <input type="datetime-local" id="meal-dt" />
+        </div>
+
+        <div class="field">
+          <label>Was hast du gegessen?</label>
+          <textarea id="meal-food" placeholder="z.B. Haferflocken, Banane, Chiasamen, Mandelmilch, Walnüsse" style="height:100px"></textarea>
+          <div class="meal-action-row">
+            <button class="meal-action-btn" onclick="openDishModal()">📋 Gericht hinzufügen</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Notizen (optional)</label>
+          <input type="text" id="meal-notes" placeholder="z.B. sehr fettig, auswärts gegessen" />
+        </div>
+
+        <button class="btn-save btn-meal" onclick="saveMeal()">Mahlzeit speichern</button>
+      </div>
+    </div>
+
+    <!-- ── Symptom ── -->
+    <div id="view-symptom" class="view">
+      <div class="card">
+        <div class="card-title symptom-title">Symptom erfassen</div>
+
+        <div class="field">
+          <label>Datum & Uhrzeit</label>
+          <input type="datetime-local" id="symptom-dt" />
+        </div>
+
+        <div class="field">
+          <label>Schnellauswahl</label>
+          <div class="quick-chips">
+            <button class="quick-chip chip-symptom" onclick="addSymptomChip('Blähungen')">Blähungen</button>
+            <button class="quick-chip chip-symptom" onclick="addSymptomChip('Krämpfe')">Krämpfe</button>
+            <button class="quick-chip chip-symptom" onclick="addSymptomChip('Übelkeit')">Übelkeit</button>
+            <button class="quick-chip chip-symptom" onclick="addSymptomChip('Sodbrennen')">Sodbrennen</button>
+            <button class="quick-chip chip-symptom" onclick="addSymptomChip('Völlegefühl')">Völlegefühl</button>
+            <button class="quick-chip chip-symptom" onclick="addSymptomChip('Bauchschmerzen')">Bauchschmerzen</button>
+            <button class="quick-chip chip-symptom" onclick="addSymptomChip('Durchfall')">Durchfall</button>
+            <button class="quick-chip chip-symptom" onclick="addSymptomChip('Verstopfung')">Verstopfung</button>
+            <button class="quick-chip chip-symptom" onclick="addSymptomChip('Aufstoßen')">Aufstoßen</button>
+            <button class="quick-chip chip-symptom" onclick="addSymptomChip('Appetitlosigkeit')">Appetitlosigkeit</button>
+            <button class="quick-chip chip-symptom" onclick="addSymptomChip('Aufgeblähter Bauch')">Aufgeblähter Bauch</button>
+            <button class="quick-chip chip-symptom" onclick="addSymptomChip('Kopfschmerzen')">Kopfschmerzen</button>
+            <button class="quick-chip chip-symptom" onclick="addSymptomChip('Magenschmerzen')">Magenschmerzen</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Symptome &amp; Schweregrad</label>
+          <div id="symptom-list"></div>
+          <div class="symptom-add-row">
+            <input type="text" id="symptom-custom-input" placeholder="Weiteres Symptom…" />
+            <button class="symptom-add-btn" onclick="addSymptomCustom()">+</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Stuhlgang – Bristol-Skala (optional)</label>
+          <div class="bristol-grid" id="bristol-top"></div>
+          <div class="bristol-row2" id="bristol-bottom"></div>
+          <div class="bristol-hint" id="bristol-hint">Tippe auf einen Typ für eine Beschreibung.</div>
+        </div>
+
+        <div class="field">
+          <label>Stimmung (optional)</label>
+          <div class="mood-row">
+            <button class="mood-btn" data-mood="1" onclick="selectMood(1)">😔</button>
+            <button class="mood-btn" data-mood="2" onclick="selectMood(2)">😕</button>
+            <button class="mood-btn" data-mood="3" onclick="selectMood(3)">😐</button>
+            <button class="mood-btn" data-mood="4" onclick="selectMood(4)">🙂</button>
+            <button class="mood-btn" data-mood="5" onclick="selectMood(5)">😊</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Notizen (optional)</label>
+          <input type="text" id="symptom-notes" placeholder="z.B. nach dem Frühstück aufgetreten" />
+        </div>
+
+        <button class="btn-save btn-symptom" onclick="saveSymptom()">Symptom speichern</button>
+      </div>
+    </div>
+
+    <!-- ── Trends ── -->
+    <div id="view-trends" class="view">
+      <div class="card">
+        <div class="card-title trends-title">Symptom-Verlauf</div>
+        <div class="field">
+          <label>Zeitraum</label>
+          <div class="trends-range-row">
+            <button class="trends-range-btn active" data-days="7"  onclick="setTrendsRange(7)">7 Tage</button>
+            <button class="trends-range-btn"        data-days="14" onclick="setTrendsRange(14)">14 Tage</button>
+            <button class="trends-range-btn"        data-days="30" onclick="setTrendsRange(30)">30 Tage</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Symptome auswählen</label>
+          <div id="trends-chips" class="quick-chips"></div>
+        </div>
+        <div id="trends-empty" class="trends-empty" style="display:none">Keine Symptome in diesem Zeitraum erfasst.</div>
+        <div id="trends-chart-wrap">
+          <svg id="trends-svg" class="trends-svg"></svg>
+          <div id="trends-legend" class="trends-legend"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Verlauf ── -->
+    <div id="view-history" class="view">
+      <div class="history-controls">
+        <button class="filter-btn" data-filter="all"     onclick="setFilter('all')">Alle</button>
+        <button class="filter-btn" data-filter="meal"    onclick="setFilter('meal')">Mahlzeiten</button>
+        <button class="filter-btn" data-filter="symptom" onclick="setFilter('symptom')">Symptome</button>
+        <button class="filter-btn" data-filter="note"    onclick="setFilter('note')">Notizen</button>
+        <button class="export-btn" onclick="openExport()">Daten ↓</button>
+      </div>
+      <div id="history-list"></div>
+    </div>
+
+    <!-- ── Mehr ── -->
+    <div id="view-mehr" class="view">
+
+      <!-- Erinnerungen -->
+      <div class="card">
+        <div class="card-title mehr-title">Erinnerungen</div>
+        <div class="notif-status">
+          <div class="notif-dot" id="notif-dot"></div>
+          <span id="notif-status-text">Benachrichtigungen: wird geprüft…</span>
+        </div>
+        <button class="perm-btn" id="perm-btn" onclick="requestNotifPermission()" style="display:none">
+          Benachrichtigungen erlauben
+        </button>
+        <div class="reminder-list" id="reminder-list"></div>
+        <div class="add-reminder-row">
+          <input type="time" id="reminder-time-input" />
+          <button class="add-reminder-btn" onclick="addReminder()">+ Hinzufügen</button>
+        </div>
+        <p style="font-size:12px;color:var(--text2);margin-top:10px;line-height:1.5">
+          Die App muss im Browser geöffnet sein, damit Erinnerungen funktionieren. Füge sie zum Startbildschirm hinzu für den besten Effekt.
+        </p>
+      </div>
+
+      <!-- Sync -->
+      <div class="card">
+        <div class="card-title mehr-title">Geräte synchronisieren</div>
+        <p style="font-size:14px;color:var(--text2);margin-bottom:12px;line-height:1.5">
+          Einmalig die Google Apps Script URL eintragen — danach werden Einträge beider Geräte zusammengeführt.
+        </p>
+        <div class="field">
+          <label>Script-URL</label>
+          <input type="url" id="sync-url-input" placeholder="https://script.google.com/macros/s/…/exec" style="width:100%;font-size:13px" />
+        </div>
+        <div class="field">
+          <label>Token</label>
+          <div style="display:flex;gap:8px">
+            <input type="password" id="sync-token-input" placeholder="Dein geheimes Token" style="flex:1;font-size:13px" />
+            <button class="add-reminder-btn" onclick="saveSyncSettingsFromInput()" style="white-space:nowrap">Speichern</button>
+          </div>
+        </div>
+        <div class="sync-status" id="sync-last"></div>
+        <button class="btn-save btn-sync" id="sync-btn" onclick="syncNow()">Jetzt synchronisieren</button>
+      </div>
+
+      <!-- Import -->
+      <div class="card">
+        <div class="card-title mehr-title">Daten importieren</div>
+        <p style="font-size:14px;color:var(--text2);margin-bottom:12px;line-height:1.5">
+          Lade eine zuvor exportierte JSON-Datei wieder ein. Neue Einträge werden zu deinen bestehenden Daten hinzugefügt.
+        </p>
+        <button class="btn-secondary" onclick="triggerImport()">
+          📂 JSON-Datei importieren
+        </button>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Gericht modal -->
+<div class="modal-overlay" id="dish-modal" onclick="closeDishModal(event)">
+  <div class="modal">
+    <h2>Gerichte</h2>
+    <p class="dish-modal-hint" id="dish-modal-hint"></p>
+    <div id="dish-list"></div>
+    <div id="dish-new-form" style="display:none">
+      <div class="field" style="margin-top:12px">
+        <label>Name</label>
+        <input type="text" id="dish-new-name" placeholder="z.B. Porridge, Mittagssalat" />
+      </div>
+      <div class="field">
+        <label>Zutaten / Beschreibung</label>
+        <textarea id="dish-new-text" placeholder="z.B. Haferflocken, Banane, Chiasamen, Mandelmilch, Walnüsse" style="height:90px"></textarea>
+      </div>
+      <button class="btn-save btn-meal" style="margin-top:0" onclick="saveNewDish()">Gericht speichern</button>
+    </div>
+    <hr class="modal-divider" />
+    <button class="modal-btn" onclick="toggleNewDishForm()">+ Neues Gericht anlegen</button>
+    <button class="modal-cancel" onclick="closeDishModal()">Schließen</button>
+  </div>
+</div>
+
+<!-- Edit modal -->
+<div class="modal-overlay" id="edit-modal" onclick="closeEditModal(event)">
+  <div class="modal" style="max-height:90vh;overflow-y:auto">
+    <h2>Eintrag bearbeiten</h2>
+
+    <div class="field">
+      <label>Datum & Uhrzeit</label>
+      <input type="datetime-local" id="edit-dt" />
+    </div>
+
+    <!-- Mahlzeit -->
+    <div id="edit-meal-section">
+      <div class="field">
+        <label>Was hast du gegessen?</label>
+        <textarea id="edit-meal-food" style="height:100px"></textarea>
+      </div>
+      <div class="field">
+        <label>Notizen (optional)</label>
+        <input type="text" id="edit-meal-notes" />
+      </div>
+    </div>
+
+    <!-- Symptom -->
+    <div id="edit-symptom-section">
+      <div class="field">
+        <label>Schnellauswahl</label>
+        <div class="quick-chips">
+          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Blähungen')">Blähungen</button>
+          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Krämpfe')">Krämpfe</button>
+          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Übelkeit')">Übelkeit</button>
+          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Sodbrennen')">Sodbrennen</button>
+          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Völlegefühl')">Völlegefühl</button>
+          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Bauchschmerzen')">Bauchschmerzen</button>
+          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Magenschmerzen')">Magenschmerzen</button>
+          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Durchfall')">Durchfall</button>
+          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Verstopfung')">Verstopfung</button>
+          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Aufstoßen')">Aufstoßen</button>
+          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Appetitlosigkeit')">Appetitlosigkeit</button>
+          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Aufgeblähter Bauch')">Aufgeblähter Bauch</button>
+          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Kopfschmerzen')">Kopfschmerzen</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Symptome & Schweregrad</label>
+        <div id="edit-symptom-list"></div>
+        <div class="symptom-add-row">
+          <input type="text" id="edit-symptom-custom-input" placeholder="Weiteres Symptom…" />
+          <button class="symptom-add-btn" onclick="addEditSymptomCustom()">+</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Stuhlgang – Bristol-Skala (optional)</label>
+        <div class="bristol-grid" id="edit-bristol-top"></div>
+        <div class="bristol-row2" id="edit-bristol-bottom"></div>
+        <div class="bristol-hint" id="edit-bristol-hint">Tippe auf einen Typ für eine Beschreibung.</div>
+      </div>
+      <div class="field">
+        <label>Stimmung (optional)</label>
+        <div class="mood-row">
+          <button class="mood-btn edit-mood-btn" data-mood="1" onclick="selectEditMood(1)">😔</button>
+          <button class="mood-btn edit-mood-btn" data-mood="2" onclick="selectEditMood(2)">😕</button>
+          <button class="mood-btn edit-mood-btn" data-mood="3" onclick="selectEditMood(3)">😐</button>
+          <button class="mood-btn edit-mood-btn" data-mood="4" onclick="selectEditMood(4)">🙂</button>
+          <button class="mood-btn edit-mood-btn" data-mood="5" onclick="selectEditMood(5)">😊</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Notizen (optional)</label>
+        <input type="text" id="edit-symptom-notes" />
+      </div>
+    </div>
+
+    <button class="btn-save btn-note" style="margin-top:8px" onclick="saveEdit()">Änderungen speichern</button>
+    <button class="modal-cancel" onclick="closeEditModal()">Abbrechen</button>
+  </div>
+</div>
+
+<!-- Daten modal -->
+<div class="modal-overlay" id="export-modal" onclick="closeExport(event)">
+  <div class="modal">
+    <h2>Daten</h2>
+    <div class="modal-btns">
+      <button class="modal-btn" onclick="exportJSON()">
+        Als JSON exportieren
+        <span>Für KI-Analyse oder Backup — vollständige Rohdaten</span>
+      </button>
+      <button class="modal-btn" onclick="exportCSV()">
+        Als CSV exportieren
+        <span>Für Excel / Arzt — tabellarisches Format</span>
+      </button>
+    </div>
+    <button class="modal-cancel" onclick="closeExport()">Schließen</button>
+  </div>
+</div>
+
+<script src="js/helpers.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/edit.js"></script>
+<script src="js/symptom.js"></script>
+<script src="js/meal.js"></script>
+<script src="js/note.js"></script>
+<script src="js/history.js"></script>
+<script src="js/trends.js"></script>
+<script src="js/reminders.js"></script>
+<script src="js/sync.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
