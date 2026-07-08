@@ -78,14 +78,12 @@ function addMealFromInput() {
   addMealFreeRow(name);
 }
 
-function mealInputToSymptom() {
-  const input = document.getElementById('meal-food-input');
-  const name = input.value.trim();
-  if (name) input.value = '';
-  switchTab('symptom');
-  if (name) {
-    document.getElementById('symptom-custom-input').value = name;
-  }
+function openDishModalWithName() {
+  const name = document.getElementById('meal-food-input').value.trim();
+  openDishModal();
+  document.getElementById('dish-new-form').style.display = 'block';
+  if (name) document.getElementById('dish-new-name').value = name;
+  document.getElementById('dish-new-name').focus();
 }
 
 function addMealFreeRow(name) {

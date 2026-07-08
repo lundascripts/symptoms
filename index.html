@@ -58,7 +58,7 @@
           <div class="symptom-add-row">
             <input type="text" id="meal-food-input" placeholder="Gericht suchen oder eingeben…" autocomplete="off" oninput="onMealInput()" onkeydown="onMealKeydown(event)" />
             <button class="symptom-add-btn" onclick="addMealFromInput()" title="Hinzufügen">+</button>
-            <button class="symptom-add-btn" onclick="mealInputToSymptom()" title="Als Symptom erfassen">📋</button>
+            <button class="symptom-add-btn" onclick="openDishModalWithName()" title="Als Gericht anlegen">📋</button>
             <div id="meal-autocomplete-list" class="meal-autocomplete-list" style="display:none"></div>
           </div>
           <div id="meal-rows" class="meal-rows"></div>
