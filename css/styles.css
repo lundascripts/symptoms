@@ -598,3 +598,101 @@ input[type="range"]::-webkit-slider-thumb {
   color: var(--accent-note); font-size: 14px; font-weight: 500;
   cursor: pointer; width: 100%; margin-bottom: 12px;
 }
+
+/* ── Datetime Trigger Button ── */
+.dt-trigger {
+  width: 100%; padding: 12px 14px; text-align: left;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); font-size: 15px; color: var(--text);
+  cursor: pointer;
+}
+.dt-trigger:active { border-color: var(--accent-meal); }
+
+/* ── Datetime Picker Popup ── */
+.dt-picker { padding: 16px; max-width: 340px; }
+
+.dt-picker-week {
+  display: flex; align-items: center; gap: 4px; margin-bottom: 16px;
+}
+#dt-week-days {
+  display: flex; flex: 1; gap: 4px; justify-content: space-between;
+}
+.dt-week-arrow {
+  background: none; border: none; font-size: 22px; color: var(--text2);
+  cursor: pointer; padding: 4px 6px; flex-shrink: 0;
+}
+.dt-day-btn {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 2px; padding: 6px 4px; border-radius: 10px;
+  border: 1.5px solid transparent; background: none;
+  cursor: pointer; min-width: 36px;
+}
+.dt-day-btn.today .dt-day-num { color: var(--accent-meal); font-weight: 700; }
+.dt-day-btn.selected { background: var(--accent-meal); border-color: var(--accent-meal); }
+.dt-day-btn.selected .dt-day-name,
+.dt-day-btn.selected .dt-day-num { color: #fff; }
+.dt-day-btn.future { opacity: 0.3; }
+.dt-day-name { font-size: 10px; color: var(--text2); }
+.dt-day-num  { font-size: 15px; font-weight: 600; color: var(--text); }
+
+.dt-picker-time {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 14px;
+}
+.dt-scroll-col {
+  flex: 1; height: 160px; overflow-y: auto; border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border); display: flex; flex-direction: column;
+  scroll-snap-type: y mandatory;
+}
+.dt-scroll-col::-webkit-scrollbar { width: 0; }
+.dt-time-btn {
+  flex-shrink: 0; padding: 10px 0; text-align: center;
+  border: none; background: none; font-size: 18px; font-weight: 500;
+  color: var(--text2); cursor: pointer; scroll-snap-align: center;
+}
+.dt-time-btn.selected { background: var(--accent-meal-light); color: var(--accent-meal); font-weight: 700; border-radius: 6px; }
+.dt-time-sep { font-size: 22px; font-weight: 700; color: var(--text2); align-self: center; }
+
+/* ── Meal rows ── */
+.meal-autocomplete-wrap { position: relative; display: flex; gap: 8px; }
+.meal-autocomplete-wrap input { flex: 1; }
+.meal-clear-btn {
+  flex-shrink: 0; width: 38px; height: 38px; border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border); background: var(--surface);
+  font-size: 18px; color: var(--text2); cursor: pointer;
+}
+.meal-clear-btn:active { color: var(--danger); }
+.meal-autocomplete-list {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 46px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); z-index: 100; max-height: 200px; overflow-y: auto;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+.meal-autocomplete-item {
+  display: flex; flex-direction: column; align-items: flex-start;
+  width: 100%; padding: 10px 14px; border: none; background: none;
+  cursor: pointer; text-align: left; gap: 2px;
+}
+.meal-autocomplete-item:hover { background: var(--surface2); }
+.meal-autocomplete-sub { font-size: 12px; color: var(--text2); }
+
+.meal-rows { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.meal-row {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface2); border-radius: var(--radius-sm); padding: 10px 12px;
+}
+.meal-row-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.meal-row-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.meal-row-text { font-size: 12px; color: var(--text2); }
+.meal-row-del {
+  background: none; border: none; color: var(--border);
+  font-size: 18px; cursor: pointer; flex-shrink: 0; padding: 2px 6px;
+}
+.meal-row-del:active { color: var(--danger); }
+
+/* ── Dish edit button ── */
+.dish-edit-btn {
+  padding: 12px 10px; background: none; border: none;
+  color: var(--text2); font-size: 15px; cursor: pointer; flex-shrink: 0;
+}
+.dish-edit-btn:active { color: var(--accent-meal); }

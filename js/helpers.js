@@ -1,8 +1,14 @@
 function setNow(id) {
   const now = new Date();
   const pad = n => String(n).padStart(2, '0');
-  document.getElementById(id).value =
-    `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  const value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  const el = document.getElementById(id);
+  if (el) el.value = value;
+  const display = document.getElementById(id + '-display');
+  if (display) {
+    display.textContent = now.toLocaleDateString('de-DE', {weekday:'short', day:'numeric', month:'numeric'})
+      + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+  }
 }
 
 function todayStr() {

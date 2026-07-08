@@ -43,7 +43,8 @@
 
         <div class="field">
           <label>Datum & Uhrzeit</label>
-          <input type="datetime-local" id="meal-dt" />
+          <button class="dt-trigger" id="meal-dt-display" onclick="openDtPicker('meal-dt')">–</button>
+          <input type="hidden" id="meal-dt" />
         </div>
 
         <div class="field" id="meal-favorites-field" style="display:none">
@@ -53,9 +54,14 @@
 
         <div class="field">
           <label>Was hast du gegessen?</label>
-          <textarea id="meal-food" placeholder="z.B. Haferflocken, Banane, Chiasamen, Mandelmilch, Walnüsse" style="height:100px"></textarea>
+          <div class="meal-autocomplete-wrap">
+            <input type="text" id="meal-food-input" placeholder="Gericht suchen oder eingeben…" autocomplete="off" oninput="onMealInput()" onkeydown="onMealKeydown(event)" />
+            <button class="meal-clear-btn" onclick="clearMealRows()" title="Alle löschen">×</button>
+            <div id="meal-autocomplete-list" class="meal-autocomplete-list" style="display:none"></div>
+          </div>
+          <div id="meal-rows" class="meal-rows"></div>
           <div class="meal-action-row">
-            <button class="meal-action-btn" onclick="openDishModal()">📋 Gericht hinzufügen</button>
+            <button class="meal-action-btn" onclick="openDishModal()">📋 Gerichte verwalten</button>
           </div>
         </div>
 
@@ -75,7 +81,8 @@
 
         <div class="field">
           <label>Datum & Uhrzeit</label>
-          <input type="datetime-local" id="symptom-dt" />
+          <button class="dt-trigger" id="symptom-dt-display" onclick="openDtPicker('symptom-dt')">–</button>
+          <input type="hidden" id="symptom-dt" />
         </div>
 
         <div class="field">
@@ -244,6 +251,23 @@
 <!-- Toast -->
 <div id="toast"></div>
 
+<!-- Datetime Picker -->
+<div class="modal-overlay" id="dt-picker-modal" onclick="closeDtPicker(event)">
+  <div class="modal dt-picker">
+    <div class="dt-picker-week">
+      <button class="dt-week-arrow" onclick="dtWeekShift(-1)">‹</button>
+      <div id="dt-week-days"></div>
+      <button class="dt-week-arrow" onclick="dtWeekShift(1)">›</button>
+    </div>
+    <div class="dt-picker-time">
+      <div class="dt-scroll-col" id="dt-hours"></div>
+      <div class="dt-time-sep">:</div>
+      <div class="dt-scroll-col" id="dt-minutes"></div>
+    </div>
+    <button class="btn-save" style="margin-top:4px" onclick="confirmDtPicker()">Übernehmen</button>
+  </div>
+</div>
+
 <!-- Gericht modal -->
 <div class="modal-overlay" id="dish-modal" onclick="closeDishModal(event)">
   <div class="modal">
@@ -260,6 +284,20 @@
         <textarea id="dish-new-text" placeholder="z.B. Haferflocken, Banane, Chiasamen, Mandelmilch, Walnüsse" style="height:90px"></textarea>
       </div>
       <button class="btn-save btn-meal" style="margin-top:0" onclick="saveNewDish()">Gericht speichern</button>
+    </div>
+    <div id="dish-edit-form" style="display:none">
+      <div class="field" style="margin-top:12px">
+        <label>Name</label>
+        <input type="text" id="dish-edit-name" />
+      </div>
+      <div class="field">
+        <label>Zutaten / Beschreibung</label>
+        <textarea id="dish-edit-text" style="height:90px"></textarea>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="btn-save btn-meal" style="margin-top:0;flex:1" onclick="saveEditDish()">Speichern</button>
+        <button class="btn-secondary" style="flex:1" onclick="cancelEditDish()">Abbrechen</button>
+      </div>
     </div>
     <hr class="modal-divider" />
     <button class="modal-btn" onclick="toggleNewDishForm()">+ Neues Gericht anlegen</button>
@@ -362,16 +400,17 @@
   </div>
 </div>
 
-<script src="js/helpers.js?v=2"></script>
-<script src="js/storage.js?v=2"></script>
-<script src="js/edit.js?v=2"></script>
-<script src="js/symptom.js?v=2"></script>
-<script src="js/meal.js?v=2"></script>
-<script src="js/note.js?v=2"></script>
-<script src="js/history.js?v=2"></script>
-<script src="js/trends.js?v=2"></script>
-<script src="js/reminders.js?v=2"></script>
-<script src="js/sync.js?v=2"></script>
+<script src="js/helpers.js?v=3"></script>
+<script src="js/storage.js?v=3"></script>
+<script src="js/datetime.js?v=3"></script>
+<script src="js/edit.js?v=3"></script>
+<script src="js/symptom.js?v=3"></script>
+<script src="js/meal.js?v=3"></script>
+<script src="js/note.js?v=3"></script>
+<script src="js/history.js?v=3"></script>
+<script src="js/trends.js?v=3"></script>
+<script src="js/reminders.js?v=3"></script>
+<script src="js/sync.js?v=3"></script>
 <script src="js/app.js?v=2"></script>
 </body>
 </html>
