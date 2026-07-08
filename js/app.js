@@ -8,7 +8,6 @@ if (!window._appInited) {
     setNow('symptom-dt');
     switchTab('note');
     renderHistory();
-    renderMealChips();
     loadTodayNote();
     updateNotifStatus();
     scheduleReminders();
@@ -21,7 +20,7 @@ function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach(b => b.className = 'tab-btn');
   document.getElementById('view-' + tab).classList.add('active');
   document.querySelector(`[data-tab="${tab}"]`).classList.add('active-' + tab);
-  if (tab === 'meal')    { setNow('meal-dt'); renderMealChips(); }
+  if (tab === 'meal')    setNow('meal-dt');
   if (tab === 'symptom') setNow('symptom-dt');
   if (tab === 'note')    loadTodayNote();
   if (tab === 'history') renderHistory();
