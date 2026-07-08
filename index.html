@@ -13,7 +13,7 @@
   <header>
     <h1>Tagebuch</h1>
     <div class="tabs">
-      <button class="tab-btn" data-tab="note"    onclick="switchTab('note')">📝 Notiz</button>
+      <button class="tab-btn" data-tab="note"    onclick="switchTab('note')">📝 Tagesnotiz</button>
       <button class="tab-btn" data-tab="meal"    onclick="switchTab('meal')">🍽 Mahlzeit</button>
       <button class="tab-btn" data-tab="symptom" onclick="switchTab('symptom')">📋 Symptom</button>
       <button class="tab-btn" data-tab="history" onclick="switchTab('history')">📅 Verlauf</button>
@@ -46,6 +46,11 @@
         <div class="field">
           <label>Datum & Uhrzeit</label>
           <input type="datetime-local" id="meal-dt" />
+        </div>
+
+        <div class="field">
+          <label>Zuletzt gegessen</label>
+          <div id="meal-recent-chips" class="quick-chips"></div>
         </div>
 
         <div class="field">
