@@ -12,4 +12,5 @@ function saveDayNote() {
   const hint = document.getElementById('note-saved-hint');
   hint.classList.add('show');
   setTimeout(() => hint.classList.remove('show'), 2000);
+  autoSync();
 }

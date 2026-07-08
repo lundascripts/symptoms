@@ -33,15 +33,22 @@ function saveSyncSettingsFromInput() {
   toast('Einstellungen gespeichert ✓');
 }
 
-async function syncNow() {
+async function autoSync() {
+  if (!getSyncUrl() || !getSyncToken()) return;
+  try {
+    await syncNow({ silent: true });
+  } catch(e) { /* silent */ }
+}
+
+async function syncNow(opts = {}) {
+  const silent = opts.silent || false;
   const url = getSyncUrl();
   const token = getSyncToken();
-  if (!url) { toast('Bitte zuerst die Script-URL eintragen.'); return; }
-  if (!token) { toast('Bitte zuerst das Token eintragen.'); return; }
+  if (!url) { if (!silent) toast('Bitte zuerst die Script-URL eintragen.'); return; }
+  if (!token) { if (!silent) toast('Bitte zuerst das Token eintragen.'); return; }
 
   const btn = document.getElementById('sync-btn');
-  btn.disabled = true;
-  btn.textContent = 'Synchronisiere…';
+  if (!silent) { btn.disabled = true; btn.textContent = 'Synchronisiere…'; }
 
   const payload = {
     token,
@@ -59,12 +66,10 @@ async function syncNow() {
 
     if (merged.error) throw new Error(merged.error);
 
-    // Merge zurück in lokalen Storage
     const localIds = new Set(getEntries().map(e => e.id));
     const incoming = (merged.entries || []).filter(e => !localIds.has(e.id));
     if (incoming.length > 0) saveEntries([...getEntries(), ...incoming]);
 
-    // Notizen mergen
     const localNotes = getDayNotes();
     let changed = false;
     Object.entries(merged.dayNotes || {}).forEach(([date, text]) => {
@@ -74,12 +79,13 @@ async function syncNow() {
 
     setLastSync();
     updateSyncStatus();
-    const newCount = incoming.length;
-    toast(newCount > 0 ? `Sync ✓ — ${newCount} neue Einträge empfangen` : 'Sync ✓ — Alles aktuell');
+    if (!silent) {
+      const newCount = incoming.length;
+      toast(newCount > 0 ? `Sync ✓ — ${newCount} neue Einträge empfangen` : 'Sync ✓ — Alles aktuell');
+    }
   } catch(err) {
-    toast('Sync fehlgeschlagen: ' + err.message);
+    if (!silent) toast('Sync fehlgeschlagen: ' + err.message);
   } finally {
-    btn.disabled = false;
-    btn.textContent = 'Jetzt synchronisieren';
+    if (!silent) { btn.disabled = false; btn.textContent = 'Jetzt synchronisieren'; }
   }
 }

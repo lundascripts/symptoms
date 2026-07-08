@@ -123,4 +123,5 @@ function saveSymptom() {
   document.getElementById('bristol-hint').textContent = 'Tippe auf einen Typ für eine Beschreibung.';
   setNow('symptom-dt');
   toast('Symptom gespeichert ✓');
+  autoSync();
 }

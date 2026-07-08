@@ -162,4 +162,5 @@ function saveEdit() {
   document.getElementById('edit-modal').classList.remove('open');
   renderHistory();
   toast('Eintrag aktualisiert ✓');
+  autoSync();
 }

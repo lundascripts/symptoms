@@ -97,4 +97,5 @@ function saveMeal() {
   document.getElementById('meal-notes').value = '';
   setNow('meal-dt');
   toast('Mahlzeit gespeichert ✓');
+  autoSync();
 }
