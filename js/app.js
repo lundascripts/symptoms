@@ -25,6 +25,7 @@ function switchTab(tab) {
   if (tab === 'meal')    { setNow('meal-dt'); renderMealFavoriteChips(); }
   if (tab === 'symptom') setNow('symptom-dt');
   if (tab === 'note')    loadTodayNote();
+  if (tab === 'history') renderHistory();
   if (tab === 'mehr')    { updateNotifStatus(); renderReminderList(); renderSyncSection(); }
 }
 

@@ -16,6 +16,7 @@
       <button class="tab-btn" data-tab="meal"    onclick="switchTab('meal')">🍽 Mahlzeit</button>
       <button class="tab-btn" data-tab="symptom" onclick="switchTab('symptom')">📋 Symptom</button>
       <button class="tab-btn" data-tab="note"    onclick="switchTab('note')">📝 Tagesnotiz</button>
+      <button class="tab-btn" data-tab="history" onclick="switchTab('history')">📅 Verlauf</button>
       <button class="tab-btn" data-tab="mehr"    onclick="switchTab('mehr')">⚙ Mehr</button>
     </div>
   </header>
@@ -167,7 +168,6 @@
 
     <!-- ── Verlauf ── -->
     <div id="view-history" class="view">
-      <button class="subview-back-btn" onclick="closeSubview()">← Mehr</button>
       <div class="history-controls">
         <button class="filter-btn" data-filter="all"     onclick="setFilter('all')">Alle</button>
         <button class="filter-btn" data-filter="meal"    onclick="setFilter('meal')">Mahlzeiten</button>
@@ -183,7 +183,6 @@
 
       <!-- Einstieg Verlauf + Trends -->
       <div id="mehr-nav" class="mehr-nav-cards">
-        <button class="mehr-nav-btn" onclick="openSubview('history')">📅 Verlauf</button>
         <button class="mehr-nav-btn" onclick="openSubview('trends')">📈 Trends</button>
       </div>
 
