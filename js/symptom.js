@@ -52,7 +52,7 @@ function renderSymptomRows() {
         <input type="range" min="0" max="10" value="${row.severity}"
           oninput="updateSymptomSeverity(${i}, this.value)"
           class="symptom-row-slider" />
-        <div class="symptom-row-val">${row.severity}</div>
+        <div class="symptom-row-val">${row.severity} <span class="severity-label">${severityLabel(row.severity)}</span></div>
         <button class="symptom-row-del" onclick="removeSymptomRow(${i})">×</button>
       </div>
     </div>
@@ -89,7 +89,7 @@ function updateSymptomSeverity(index, value) {
   symptomRows[index].severity = parseInt(value);
   // Update display value next to slider
   const row = document.querySelectorAll('.symptom-row')[index];
-  if (row) row.querySelector('.symptom-row-val').textContent = value;
+  if (row) row.querySelector('.symptom-row-val').innerHTML = `${value} <span class="severity-label">${severityLabel(value)}</span>`;
 }
 
 function removeSymptomRow(index) {

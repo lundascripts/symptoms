@@ -27,6 +27,22 @@ function formatTime(dt) {
   return new Date(dt).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
 }
 
+const SEVERITY_LABELS = [
+  'Keine Beschwerden',
+  'Kaum spürbar, fällt kaum auf',
+  'Leicht, aber merklich',
+  'Mäßig, leicht ablenkend',
+  'Deutlich, stört im Alltag',
+  'Mittelstark, schwer zu ignorieren',
+  'Stark, beeinträchtigt Aktivitäten',
+  'Sehr stark, macht vieles schwierig',
+  'Heftig, kaum funktionsfähig',
+  'Kaum aushaltbar',
+  'Schlimmste vorstellbare Beschwerden',
+];
+
+function severityLabel(v) { return SEVERITY_LABELS[parseInt(v)] || ''; }
+
 function toast(msg) {
   const el = document.getElementById('toast');
   el.textContent = msg; el.classList.add('show');

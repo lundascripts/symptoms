@@ -58,7 +58,7 @@ function renderEditSymptomRows() {
         <input type="range" min="0" max="10" value="${row.severity}"
           oninput="updateEditSymptomSeverity(${i}, this.value)"
           class="symptom-row-slider" />
-        <div class="symptom-row-val">${row.severity}</div>
+        <div class="symptom-row-val">${row.severity} <span class="severity-label">${severityLabel(row.severity)}</span></div>
         <button class="symptom-row-del" onclick="removeEditSymptomRow(${i})">×</button>
       </div>
     </div>
@@ -68,7 +68,7 @@ function renderEditSymptomRows() {
 function updateEditSymptomSeverity(index, value) {
   editSymptomRows[index].severity = parseInt(value);
   const rows = document.querySelectorAll('#edit-symptom-list .symptom-row');
-  if (rows[index]) rows[index].querySelector('.symptom-row-val').textContent = value;
+  if (rows[index]) rows[index].querySelector('.symptom-row-val').innerHTML = `${value} <span class="severity-label">${severityLabel(value)}</span>`;
 }
 
 function removeEditSymptomRow(index) {
