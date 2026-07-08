@@ -13,7 +13,32 @@ if (!window._appInited) {
     updateNotifStatus();
     scheduleReminders();
     document.querySelector('[data-filter="all"]').classList.add('active');
+    initSwipe();
   });
+}
+
+const TABS = ['meal', 'symptom', 'note', 'history', 'mehr'];
+
+function currentTabIndex() {
+  return TABS.findIndex(t => document.getElementById('view-' + t)?.classList.contains('active'));
+}
+
+function initSwipe() {
+  let startX = 0, startY = 0;
+  const main = document.querySelector('main') || document.body;
+  main.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  }, { passive: true });
+  main.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    const i = currentTabIndex();
+    if (i === -1) return;
+    if (dx < 0 && i < TABS.length - 1) switchTab(TABS[i + 1]);
+    if (dx > 0 && i > 0) switchTab(TABS[i - 1]);
+  }, { passive: true });
 }
 
 function switchTab(tab) {
