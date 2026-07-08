@@ -97,6 +97,14 @@ function removeSymptomRow(index) {
   renderSymptomRows();
 }
 
+function symptomInputToMeal() {
+  const input = document.getElementById('symptom-custom-input');
+  const name = input.value.trim();
+  if (name) input.value = '';
+  switchTab('meal');
+  if (name) addMealFreeRow(name);
+}
+
 function saveSymptom() {
   if (symptomRows.length === 0 && !selectedBristol && !selectedMood) {
     toast('Bitte mindestens ein Symptom, Stuhlgang oder Stimmung angeben.');
