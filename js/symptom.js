@@ -113,6 +113,7 @@ function saveSymptom() {
     notes: document.getElementById('symptom-notes').value.trim() || null,
   });
   saveEntries(entries);
+  autoSync();
 
   symptomRows = [];
   renderSymptomRows();

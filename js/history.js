@@ -117,6 +117,7 @@ function deleteDayNote(dateStr) {
   saveDayNotes(notes);
   if (dateStr === todayStr()) document.getElementById('day-note-input').value = '';
   renderHistory();
+  autoSync();
 }
 
 function openExport() { document.getElementById('export-modal').classList.add('open'); }

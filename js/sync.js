@@ -35,13 +35,12 @@ function saveSyncSettingsFromInput() {
 
 async function autoSync() {
   if (!getSyncUrl() || !getSyncToken()) return;
-  try {
-    await syncNow({ silent: true });
-  } catch(e) { /* silent */ }
+  await syncNow({ silent: true, showErrors: true });
 }
 
 async function syncNow(opts = {}) {
   const silent = opts.silent || false;
+  const showErrors = opts.showErrors || false;
   const url = getSyncUrl();
   const token = getSyncToken();
   if (!url) { if (!silent) toast('Bitte zuerst die Script-URL eintragen.'); return; }
@@ -93,7 +92,7 @@ async function syncNow(opts = {}) {
       toast(newCount > 0 ? `Sync ✓ — ${newCount} neue Einträge empfangen` : 'Sync ✓ — Alles aktuell');
     }
   } catch(err) {
-    if (!silent) toast('Sync fehlgeschlagen: ' + err.message);
+    if (!silent || showErrors) toast('Sync fehlgeschlagen: ' + err.message);
   } finally {
     if (!silent) { btn.disabled = false; btn.textContent = 'Jetzt synchronisieren'; }
   }

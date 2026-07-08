@@ -163,4 +163,5 @@ function saveEdit() {
   renderHistory();
   toast('Eintrag aktualisiert ✓');
   autoSync();
+  autoSync();
 }

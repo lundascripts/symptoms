@@ -221,6 +221,7 @@ function saveMeal() {
   entries.push({ id: Date.now(), type: 'meal', datetime: document.getElementById('meal-dt').value,
     food, notes: document.getElementById('meal-notes').value.trim() || null });
   saveEntries(entries);
+  autoSync();
   mealRows = [];
   renderMealRows();
   document.getElementById('meal-food-input').value = '';
