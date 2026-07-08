@@ -49,6 +49,12 @@ const SEVERITY_LABELS = [
 
 function severityLabel(v) { return SEVERITY_LABELS[parseInt(v)] || ''; }
 
+function formatMealFood(food) {
+  const lines = String(food).split('\n').map(l => l.trim()).filter(Boolean);
+  if (lines.length <= 1) return esc(food);
+  return '<ul class="meal-food-list">' + lines.map(l => `<li>${esc(l)}</li>`).join('') + '</ul>';
+}
+
 function toast(msg) {
   const el = document.getElementById('toast');
   el.textContent = msg; el.classList.add('show');

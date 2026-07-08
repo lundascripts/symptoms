@@ -52,7 +52,7 @@ function renderHistory() {
       if (e.type === 'meal') {
         return `<div class="entry-card meal-card">
           <div class="entry-header">
-            <div><div class="entry-type meal">Mahlzeit</div><div class="entry-main">${esc(e.food)}</div></div>
+            <div><div class="entry-type meal">Mahlzeit</div><div class="entry-main">${formatMealFood(e.food)}</div></div>
             <div style="display:flex;align-items:center;gap:8px">
               <div class="entry-time">${formatTime(e.datetime)}</div>
               <button class="edit-btn" onclick="openEditModal(${e.id})" title="Bearbeiten">✏</button>
