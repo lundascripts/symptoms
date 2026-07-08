@@ -63,26 +63,17 @@ function renderHistory() {
         </div>`;
       } else {
         // Support both old format (description+severity) and new format (symptoms array)
-        let symptomsHtml;
-        if (e.symptoms && e.symptoms.length) {
-          symptomsHtml = e.symptoms.map(s =>
-            `<span class="meta-chip">${esc(s.name)} <strong>${s.severity}/10</strong></span>`
-          ).join('');
-        } else if (e.description) {
-          symptomsHtml = `<span class="meta-chip">${esc(e.description)} <strong>${e.severity}/10</strong></span>`;
-        } else {
-          symptomsHtml = '';
-        }
         const extraChips = [
           e.bristol ? `Bristol ${e.bristol}` : null,
           e.mood ? moodEmoji[e.mood] : null,
         ].filter(Boolean);
         const mainLabel = e.symptoms && e.symptoms.length
-          ? e.symptoms.map(s => s.name).join(', ')
-          : (e.description || (e.bristol ? `Bristol ${e.bristol}` : '') || (e.mood ? moodEmoji[e.mood] : ''));
+          ? e.symptoms.map(s => `${esc(s.name)} <strong>${s.severity}/10</strong>`).join(', ')
+          : (e.description ? `${esc(e.description)} <strong>${e.severity}/10</strong>` : (e.bristol ? `Bristol ${e.bristol}` : '') || (e.mood ? moodEmoji[e.mood] : ''));
+        const symptomsHtml = '';
         return `<div class="entry-card symptom-card">
           <div class="entry-header">
-            <div><div class="entry-type symptom">Symptom</div><div class="entry-main">${esc(mainLabel)}</div></div>
+            <div><div class="entry-type symptom">Symptom</div><div class="entry-main">${mainLabel}</div></div>
             <div style="display:flex;align-items:center;gap:8px">
               <div class="entry-time">${formatTime(e.datetime)}</div>
               <button class="edit-btn" onclick="openEditModal(${e.id})" title="Bearbeiten">✏</button>
