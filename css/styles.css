@@ -447,6 +447,19 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .dish-del-btn:active { color: var(--danger); }
 
+.dish-fav-btn {
+  padding: 12px 10px;
+  background: none;
+  border: none;
+  color: var(--border);
+  font-size: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.dish-fav-btn.active { color: #f5a623; }
+.dish-fav-btn:active { opacity: 0.6; }
+
 .dish-modal-hint {
   font-size: 13px;
   color: var(--text2);

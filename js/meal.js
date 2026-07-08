@@ -1,3 +1,26 @@
+// ── Favorite chips ──
+
+function renderMealFavoriteChips() {
+  const field = document.getElementById('meal-favorites-field');
+  const container = document.getElementById('meal-favorite-chips');
+  if (!container) return;
+  const favs = getMealTemplates().filter(d => d.favorite);
+  field.style.display = favs.length > 0 ? '' : 'none';
+  container.innerHTML = favs.map(d =>
+    `<button class="quick-chip" onclick="useDish(${d.id})">${esc(d.name)}</button>`
+  ).join('');
+}
+
+function toggleFavorite(id) {
+  const dishs = getMealTemplates();
+  const d = dishs.find(d => d.id === id);
+  if (!d) return;
+  d.favorite = !d.favorite;
+  saveMealTemplates(dishs);
+  renderDishList();
+  renderMealFavoriteChips();
+}
+
 // ── Dish modal ──
 
 function openDishModal() {
@@ -29,6 +52,7 @@ function renderDishList() {
         <span class="dish-name">${esc(r.name)}</span>
         <span class="dish-preview">${esc(r.text)}</span>
       </button>
+      <button class="dish-fav-btn${r.favorite ? ' active' : ''}" onclick="toggleFavorite(${r.id})" title="Favorit">${r.favorite ? '★' : '☆'}</button>
       <button class="dish-del-btn" onclick="deleteDish(${r.id})" title="Löschen">×</button>
     </div>
   `).join('');
