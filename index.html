@@ -99,6 +99,7 @@
             <button class="quick-chip chip-symptom" onclick="addSymptomChip('Kopfschmerzen')">Kopfschmerzen</button>
             <button class="quick-chip chip-symptom" onclick="addSymptomChip('Krämpfe')">Krämpfe</button>
             <button class="quick-chip chip-symptom" onclick="addSymptomChip('Magenschmerzen')">Magenschmerzen</button>
+            <button class="quick-chip chip-symptom" onclick="addSymptomChip('Schwindel')">Schwindel</button>
             <button class="quick-chip chip-symptom" onclick="addSymptomChip('Sodbrennen')">Sodbrennen</button>
             <button class="quick-chip chip-symptom" onclick="addSymptomChip('Übelkeit')">Übelkeit</button>
             <button class="quick-chip chip-symptom" onclick="addSymptomChip('Verstopfung')">Verstopfung</button>
@@ -110,7 +111,7 @@
           <label>Symptome &amp; Schweregrad</label>
           <div id="symptom-list"></div>
           <div class="symptom-add-row">
-            <input type="text" id="symptom-custom-input" placeholder="Weiteres Symptom…" />
+            <input type="text" id="symptom-custom-input" placeholder="Weiteres Symptom…" onkeydown="if(event.key==='Enter'){event.preventDefault();addSymptomCustom();}" />
             <button class="symptom-add-btn" onclick="addSymptomCustom()">+</button>
           </div>
         </div>
@@ -341,6 +342,7 @@
           <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Kopfschmerzen')">Kopfschmerzen</button>
           <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Krämpfe')">Krämpfe</button>
           <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Magenschmerzen')">Magenschmerzen</button>
+          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Schwindel')">Schwindel</button>
           <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Sodbrennen')">Sodbrennen</button>
           <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Übelkeit')">Übelkeit</button>
           <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Verstopfung')">Verstopfung</button>
@@ -351,7 +353,7 @@
         <label>Symptome & Schweregrad</label>
         <div id="edit-symptom-list"></div>
         <div class="symptom-add-row">
-          <input type="text" id="edit-symptom-custom-input" placeholder="Weiteres Symptom…" />
+          <input type="text" id="edit-symptom-custom-input" placeholder="Weiteres Symptom…" onkeydown="if(event.key==='Enter'){event.preventDefault();addEditSymptomCustom();}" />
           <button class="symptom-add-btn" onclick="addEditSymptomCustom()">+</button>
         </div>
       </div>
