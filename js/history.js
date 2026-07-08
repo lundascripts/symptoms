@@ -67,8 +67,10 @@ function renderHistory() {
           e.bristol ? `Bristol ${e.bristol}` : null,
           e.mood ? moodEmoji[e.mood] : null,
         ].filter(Boolean);
-        const mainLabel = e.symptoms && e.symptoms.length
-          ? e.symptoms.map(s => `${esc(s.name)} <strong>${s.severity}/10</strong>`).join(', ')
+        const sortedSymptoms = (e.symptoms || []).slice().sort((a, b) =>
+          b.severity - a.severity || a.name.localeCompare(b.name, 'de'));
+        const mainLabel = sortedSymptoms.length
+          ? sortedSymptoms.map(s => `${esc(s.name)} <strong>${s.severity}/10</strong>`).join(', ')
           : (e.description ? `${esc(e.description)} <strong>${e.severity}/10</strong>` : (e.bristol ? `Bristol ${e.bristol}` : '') || (e.mood ? moodEmoji[e.mood] : ''));
         const symptomsHtml = '';
         return `<div class="entry-card symptom-card">
