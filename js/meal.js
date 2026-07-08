@@ -1,16 +1,3 @@
-function renderMealChips() {
-  const container = document.getElementById('meal-recent-chips');
-  if (!container) return;
-  const dishs = getMealTemplates().slice(-5).reverse();
-  if (dishs.length === 0) {
-    container.innerHTML = '<span style="font-size:13px;color:var(--text2)">Noch keine Gerichte gespeichert.</span>';
-    return;
-  }
-  container.innerHTML = dishs.map(d =>
-    `<button class="quick-chip" onclick="useDish(${d.id})">${esc(d.name)}</button>`
-  ).join('');
-}
-
 // ── Dish modal ──
 
 function openDishModal() {
@@ -105,7 +92,6 @@ function saveMeal() {
   document.getElementById('meal-food').value = '';
   document.getElementById('meal-notes').value = '';
   setNow('meal-dt');
-  renderMealChips();
   toast('Mahlzeit gespeichert ✓');
   autoSync();
 }
