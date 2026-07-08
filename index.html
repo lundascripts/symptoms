@@ -55,9 +55,10 @@
 
         <div class="field">
           <label>Was hast du gegessen?</label>
-          <div class="meal-autocomplete-wrap">
+          <div class="symptom-add-row">
             <input type="text" id="meal-food-input" placeholder="Gericht suchen oder eingeben…" autocomplete="off" oninput="onMealInput()" onkeydown="onMealKeydown(event)" />
-            <button class="meal-clear-btn" onclick="clearMealRows()" title="Alle löschen">×</button>
+            <button class="symptom-add-btn" onclick="addMealFromInput()" title="Hinzufügen">+</button>
+            <button class="symptom-add-btn" onclick="mealInputToSymptom()" title="Als Symptom erfassen">📋</button>
             <div id="meal-autocomplete-list" class="meal-autocomplete-list" style="display:none"></div>
           </div>
           <div id="meal-rows" class="meal-rows"></div>
@@ -111,7 +112,6 @@
           <div class="symptom-add-row">
             <input type="text" id="symptom-custom-input" placeholder="Weiteres Symptom…" />
             <button class="symptom-add-btn" onclick="addSymptomCustom()">+</button>
-            <button class="symptom-add-btn symptom-to-meal-btn" onclick="symptomInputToMeal()" title="Als Mahlzeit erfassen">🍽</button>
           </div>
         </div>
 

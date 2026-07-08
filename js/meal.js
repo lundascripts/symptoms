@@ -71,6 +71,23 @@ function addMealDishRow(d) {
   renderMealRows();
 }
 
+function addMealFromInput() {
+  const input = document.getElementById('meal-food-input');
+  const name = input.value.trim();
+  if (!name) return;
+  addMealFreeRow(name);
+}
+
+function mealInputToSymptom() {
+  const input = document.getElementById('meal-food-input');
+  const name = input.value.trim();
+  if (name) input.value = '';
+  switchTab('symptom');
+  if (name) {
+    document.getElementById('symptom-custom-input').value = name;
+  }
+}
+
 function addMealFreeRow(name) {
   mealRows.push({ id: null, name, text: '' });
   renderMealRows();
