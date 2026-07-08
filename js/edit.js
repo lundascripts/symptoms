@@ -13,6 +13,7 @@ function openEditModal(id) {
   const isMeal = entry.type === 'meal';
   document.getElementById('edit-meal-section').style.display = isMeal ? '' : 'none';
   document.getElementById('edit-symptom-section').style.display = isMeal ? 'none' : '';
+  document.getElementById('edit-save-as-dish-btn').style.display = isMeal ? '' : 'none';
 
   if (isMeal) {
     document.getElementById('edit-meal-food').value = entry.food || '';
@@ -163,5 +164,13 @@ function saveEdit() {
   renderHistory();
   toast('Eintrag aktualisiert ✓');
   autoSync();
-  autoSync();
+}
+
+function saveEditMealAsDish() {
+  const food = document.getElementById('edit-meal-food').value.trim();
+  document.getElementById('edit-modal').classList.remove('open');
+  openDishModal();
+  document.getElementById('dish-new-form').style.display = 'block';
+  document.getElementById('dish-new-name').value = food.split('\n')[0].trim();
+  document.getElementById('dish-new-name').focus();
 }
