@@ -6,18 +6,16 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <title>Tagebuch</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/styles.css?v=2" />
 </head>
 <body>
 <div id="app">
   <header>
     <h1>Tagebuch</h1>
     <div class="tabs">
-      <button class="tab-btn" data-tab="note"    onclick="switchTab('note')">📝 Tagesnotiz</button>
       <button class="tab-btn" data-tab="meal"    onclick="switchTab('meal')">🍽 Mahlzeit</button>
       <button class="tab-btn" data-tab="symptom" onclick="switchTab('symptom')">📋 Symptom</button>
-      <button class="tab-btn" data-tab="history" onclick="switchTab('history')">📅 Verlauf</button>
-      <button class="tab-btn" data-tab="trends"  onclick="switchTab('trends')">📈 Trends</button>
+      <button class="tab-btn" data-tab="note"    onclick="switchTab('note')">📝 Tagesnotiz</button>
       <button class="tab-btn" data-tab="mehr"    onclick="switchTab('mehr')">⚙ Mehr</button>
     </div>
   </header>
@@ -137,6 +135,7 @@
 
     <!-- ── Trends ── -->
     <div id="view-trends" class="view">
+      <button class="subview-back-btn" onclick="closeSubview()">← Mehr</button>
       <div class="card">
         <div class="card-title trends-title">Symptom-Verlauf</div>
         <div class="field">
@@ -161,6 +160,7 @@
 
     <!-- ── Verlauf ── -->
     <div id="view-history" class="view">
+      <button class="subview-back-btn" onclick="closeSubview()">← Mehr</button>
       <div class="history-controls">
         <button class="filter-btn" data-filter="all"     onclick="setFilter('all')">Alle</button>
         <button class="filter-btn" data-filter="meal"    onclick="setFilter('meal')">Mahlzeiten</button>
@@ -173,6 +173,15 @@
 
     <!-- ── Mehr ── -->
     <div id="view-mehr" class="view">
+
+      <!-- Einstieg Verlauf + Trends -->
+      <div id="mehr-nav" class="mehr-nav-cards">
+        <button class="mehr-nav-btn" onclick="openSubview('history')">📅 Verlauf</button>
+        <button class="mehr-nav-btn" onclick="openSubview('trends')">📈 Trends</button>
+      </div>
+
+      <!-- Einstellungen -->
+      <div id="mehr-settings">
 
       <!-- Erinnerungen -->
       <div class="card">
@@ -225,6 +234,8 @@
           📂 JSON-Datei importieren
         </button>
       </div>
+
+      </div> <!-- end mehr-settings -->
 
     </div>
   </main>

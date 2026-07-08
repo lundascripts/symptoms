@@ -87,6 +87,38 @@ main { flex: 1; padding: 16px; max-width: 600px; margin: 0 auto; width: 100%; }
 .note-title    { color: var(--accent-note); }
 .mehr-title    { color: var(--text2); }
 
+.mehr-nav-cards {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.mehr-nav-btn {
+  flex: 1;
+  padding: 18px 12px;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text1);
+  cursor: pointer;
+  text-align: center;
+}
+.mehr-nav-btn:active { opacity: 0.7; }
+
+.subview-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--text2);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 0 12px 0;
+}
+.subview-back-btn:active { opacity: 0.6; }
+
 /* ── Form elements ── */
 .field { margin-bottom: 14px; }
 .field:last-child { margin-bottom: 0; }
