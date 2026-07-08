@@ -1,25 +1,14 @@
 function renderMealChips() {
   const container = document.getElementById('meal-recent-chips');
   if (!container) return;
-  const recent = getEntries()
-    .filter(e => e.type === 'meal' && e.food)
-    .slice().reverse()
-    .reduce((acc, e) => {
-      if (!acc.seen.has(e.food)) { acc.seen.add(e.food); acc.items.push(e.food); }
-      return acc;
-    }, { seen: new Set(), items: [] })
-    .items.slice(0, 5);
-  if (recent.length === 0) {
-    container.innerHTML = '<span style="font-size:13px;color:var(--text2)">Noch keine Einträge.</span>';
+  const dishs = getMealTemplates().slice(-5).reverse();
+  if (dishs.length === 0) {
+    container.innerHTML = '<span style="font-size:13px;color:var(--text2)">Noch keine Gerichte gespeichert.</span>';
     return;
   }
-  container.innerHTML = recent.map(food =>
-    `<button class="quick-chip" onclick="useRecentMeal(${JSON.stringify(food)})">${esc(food.length > 30 ? food.slice(0, 28) + '…' : food)}</button>`
+  container.innerHTML = dishs.map(d =>
+    `<button class="quick-chip" onclick="useDish(${d.id})">${esc(d.name)}</button>`
   ).join('');
-}
-
-function useRecentMeal(food) {
-  document.getElementById('meal-food').value = food;
 }
 
 // ── Dish modal ──
