@@ -105,7 +105,9 @@ function renderHistory() {
 function deleteEntry(id) {
   if (!confirm('Eintrag löschen?')) return;
   saveEntries(getEntries().filter(e => e.id !== id));
+  addDeletedId(id);
   renderHistory();
+  autoSync();
 }
 
 function deleteDayNote(dateStr) {

@@ -54,6 +54,7 @@ async function syncNow(opts = {}) {
     token,
     entries: getEntries(),
     dayNotes: getDayNotes(),
+    deletedIds: getDeletedIds(),
   };
 
   try {
@@ -66,8 +67,16 @@ async function syncNow(opts = {}) {
 
     if (merged.error) throw new Error(merged.error);
 
+    // Löschungen vom Server lokal anwenden
+    const remoteDeleted = new Set(merged.deletedIds || []);
+    if (remoteDeleted.size > 0) {
+      saveEntries(getEntries().filter(e => !remoteDeleted.has(e.id)));
+      const mergedDeleted = [...new Set([...getDeletedIds(), ...remoteDeleted])];
+      saveDeletedIds(mergedDeleted);
+    }
+
     const localIds = new Set(getEntries().map(e => e.id));
-    const incoming = (merged.entries || []).filter(e => !localIds.has(e.id));
+    const incoming = (merged.entries || []).filter(e => !localIds.has(e.id) && !remoteDeleted.has(e.id));
     if (incoming.length > 0) saveEntries([...getEntries(), ...incoming]);
 
     const localNotes = getDayNotes();
