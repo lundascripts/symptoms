@@ -271,6 +271,16 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .btn-secondary:active { background: var(--surface2); }
 
+/* ── Icon action buttons ── */
+.btn-icon {
+  flex-shrink: 0; padding: 10px 14px; border: none;
+  border-radius: var(--radius-sm); font-size: 18px; cursor: pointer;
+  transition: opacity 0.15s; line-height: 1;
+}
+.btn-icon:active { opacity: 0.75; }
+.btn-icon-save  { background: #27ae60; color: #fff; }
+.btn-icon-clear { background: #e74c3c; color: #fff; }
+
 /* ── Toast ── */
 #toast {
   position: fixed; bottom: 24px; left: 50%;
@@ -643,7 +653,10 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .meal-entry-actions {
-  display: flex; flex-direction: column; gap: 6px; margin-top: 2px;
+  display: flex; flex-direction: row; align-items: center; gap: 6px; margin-top: 2px;
+}
+.meal-entry-actions .btn-save {
+  flex: 1; width: auto; margin-top: 0;
 }
 
 /* ── Meal rows ── */
