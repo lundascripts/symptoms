@@ -254,15 +254,12 @@
   <div class="modal">
     <h2>Gerichte</h2>
     <p class="dish-modal-hint" id="dish-modal-hint"></p>
+    <input type="text" id="dish-search" placeholder="Gerichte durchsuchen…" oninput="filterDishList()" autocomplete="off" style="width:100%;box-sizing:border-box;margin-bottom:8px" />
     <div id="dish-list"></div>
     <div id="dish-new-form" style="display:none">
       <div class="field" style="margin-top:12px">
         <label>Name</label>
         <input type="text" id="dish-new-name" placeholder="z.B. Porridge, Mittagssalat" />
-      </div>
-      <div class="field">
-        <label>Zutaten / Beschreibung (optional wenn Bestandteile angegeben)</label>
-        <textarea id="dish-new-text" placeholder="z.B. Haferflocken, Banane, Chiasamen, Mandelmilch, Walnüsse" style="height:90px"></textarea>
       </div>
       <div class="field">
         <label>Bestandteile (optional)</label>
@@ -272,6 +269,10 @@
           <div id="dish-new-components-list" class="meal-autocomplete-list" style="display:none;right:0"></div>
         </div>
       </div>
+      <div class="field">
+        <label>Zutaten / Beschreibung (optional)</label>
+        <textarea id="dish-new-text" placeholder="z.B. Haferflocken, Banane, Chiasamen, Mandelmilch, Walnüsse" style="height:90px"></textarea>
+      </div>
       <button class="btn-save btn-meal" style="margin-top:0" onclick="saveNewDish()">Gericht speichern</button>
     </div>
     <div id="dish-edit-form" style="display:none">
@@ -280,16 +281,16 @@
         <input type="text" id="dish-edit-name" />
       </div>
       <div class="field">
-        <label>Zutaten / Beschreibung (optional wenn Bestandteile angegeben)</label>
-        <textarea id="dish-edit-text" style="height:90px"></textarea>
-      </div>
-      <div class="field">
         <label>Bestandteile (optional)</label>
         <div id="dish-edit-components-chips" class="dish-component-chips"></div>
         <div style="position:relative">
           <input type="text" id="dish-edit-components-input" placeholder="Gericht suchen…" autocomplete="off" oninput="onDishComponentInput(true)" />
           <div id="dish-edit-components-list" class="meal-autocomplete-list" style="display:none;right:0"></div>
         </div>
+      </div>
+      <div class="field">
+        <label>Zutaten / Beschreibung (optional)</label>
+        <textarea id="dish-edit-text" style="height:90px"></textarea>
       </div>
       <div style="display:flex;gap:8px;margin-top:4px">
         <button class="btn-save btn-meal" style="margin-top:0;flex:1" onclick="saveEditDish()">Speichern</button>
@@ -424,7 +425,7 @@
 <script src="js/datetime.js?v=4"></script>
 <script src="js/edit.js?v=6"></script>
 <script src="js/symptom.js?v=4"></script>
-<script src="js/meal.js?v=7"></script>
+<script src="js/meal.js?v=8"></script>
 <script src="js/note.js?v=4"></script>
 <script src="js/history.js?v=5"></script>
 <script src="js/reminders.js?v=4"></script>

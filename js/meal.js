@@ -238,6 +238,8 @@ let _newComponents = [];
 let _editComponents = [];
 
 function openDishModal() {
+  const s = document.getElementById('dish-search');
+  if (s) s.value = '';
   renderDishList();
   document.getElementById('dish-modal').classList.add('open');
   document.getElementById('dish-new-form').style.display = 'none';
@@ -250,8 +252,13 @@ function closeDishModal(e) {
     document.getElementById('dish-modal').classList.remove('open');
 }
 
+function filterDishList() {
+  renderDishList();
+}
+
 function renderDishList() {
-  const dishs = getMealTemplates();
+  const query = (document.getElementById('dish-search')?.value || '').trim().toLowerCase();
+  const dishs = getMealTemplates().filter(d => !query || d.name.toLowerCase().includes(query));
   const list = document.getElementById('dish-list');
   if (dishs.length === 0) {
     list.innerHTML = '<p class="dish-empty">Noch keine Gerichte. Lege dein erstes an!</p>';
