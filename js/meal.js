@@ -291,7 +291,12 @@ function filterDishList() {
 
 function renderDishList() {
   const query = (document.getElementById('dish-search')?.value || '').trim().toLowerCase();
-  const dishs = getMealTemplates().filter(d => !query || d.name.toLowerCase().includes(query));
+  const dishs = getMealTemplates()
+    .filter(d => !query || d.name.toLowerCase().includes(query))
+    .sort((a, b) => {
+      if (a.favorite !== b.favorite) return a.favorite ? -1 : 1;
+      return a.name.localeCompare(b.name, 'de');
+    });
   const list = document.getElementById('dish-list');
   if (dishs.length === 0) {
     list.innerHTML = '<p class="dish-empty">Noch keine Gerichte. Lege dein erstes an!</p>';
