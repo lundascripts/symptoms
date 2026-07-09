@@ -55,11 +55,16 @@
 
         <div class="field">
           <label>Was hast du gegessen?</label>
-          <div class="symptom-add-row">
-            <input type="text" id="meal-food-input" placeholder="Gericht suchen oder eingeben…" autocomplete="off" oninput="onMealInput()" onkeydown="onMealKeydown(event)" />
-            <button class="symptom-add-btn" onclick="addMealFromInput()" title="Hinzufügen">+</button>
-            <button class="symptom-add-btn" onclick="openDishModalWithName()" title="Als Gericht anlegen">📋</button>
-            <div id="meal-autocomplete-list" class="meal-autocomplete-list" style="display:none"></div>
+          <div class="meal-entry-inputs">
+            <div style="position:relative">
+              <input type="text" id="meal-food-input" placeholder="Name…" autocomplete="off" oninput="onMealInput()" onkeydown="onMealKeydown(event)" />
+              <div id="meal-autocomplete-list" class="meal-autocomplete-list" style="display:none"></div>
+            </div>
+            <div class="meal-entry-bottom-row">
+              <input type="text" id="meal-food-detail" placeholder="Zutaten / Bestandteile (optional)" autocomplete="off" />
+              <button class="symptom-add-btn" onclick="addMealFromInput()" title="Hinzufügen">+</button>
+              <button class="symptom-add-btn" onclick="openDishModalWithName()" title="Als Gericht anlegen">📋</button>
+            </div>
           </div>
           <div id="meal-rows" class="meal-rows"></div>
           <div class="meal-action-row">
@@ -143,31 +148,6 @@
       </div>
     </div>
 
-    <!-- ── Trends ── -->
-    <div id="view-trends" class="view">
-      <button class="subview-back-btn" onclick="closeSubview()">← Mehr</button>
-      <div class="card">
-        <div class="card-title trends-title">Symptom-Verlauf</div>
-        <div class="field">
-          <label>Zeitraum</label>
-          <div class="trends-range-row">
-            <button class="trends-range-btn active" data-days="7"  onclick="setTrendsRange(7)">7 Tage</button>
-            <button class="trends-range-btn"        data-days="14" onclick="setTrendsRange(14)">14 Tage</button>
-            <button class="trends-range-btn"        data-days="30" onclick="setTrendsRange(30)">30 Tage</button>
-          </div>
-        </div>
-        <div class="field">
-          <label>Symptome auswählen</label>
-          <div id="trends-chips" class="quick-chips"></div>
-        </div>
-        <div id="trends-empty" class="trends-empty" style="display:none">Keine Symptome in diesem Zeitraum erfasst.</div>
-        <div id="trends-chart-wrap">
-          <svg id="trends-svg" class="trends-svg"></svg>
-          <div id="trends-legend" class="trends-legend"></div>
-        </div>
-      </div>
-    </div>
-
     <!-- ── Verlauf ── -->
     <div id="view-history" class="view">
       <div class="history-controls">
@@ -182,11 +162,6 @@
 
     <!-- ── Mehr ── -->
     <div id="view-mehr" class="view">
-
-      <!-- Einstieg Verlauf + Trends -->
-      <div id="mehr-nav" class="mehr-nav-cards">
-        <button class="mehr-nav-btn" onclick="openSubview('trends')">📈 Trends</button>
-      </div>
 
       <!-- Einstellungen -->
       <div id="mehr-settings">
@@ -281,8 +256,16 @@
         <input type="text" id="dish-new-name" placeholder="z.B. Porridge, Mittagssalat" />
       </div>
       <div class="field">
-        <label>Zutaten / Beschreibung</label>
+        <label>Zutaten / Beschreibung (optional wenn Bestandteile angegeben)</label>
         <textarea id="dish-new-text" placeholder="z.B. Haferflocken, Banane, Chiasamen, Mandelmilch, Walnüsse" style="height:90px"></textarea>
+      </div>
+      <div class="field">
+        <label>Bestandteile (optional)</label>
+        <div id="dish-new-components-chips" class="dish-component-chips"></div>
+        <div style="position:relative">
+          <input type="text" id="dish-new-components-input" placeholder="Gericht suchen…" autocomplete="off" oninput="onDishComponentInput(false)" />
+          <div id="dish-new-components-list" class="meal-autocomplete-list" style="display:none;right:0"></div>
+        </div>
       </div>
       <button class="btn-save btn-meal" style="margin-top:0" onclick="saveNewDish()">Gericht speichern</button>
     </div>
@@ -292,8 +275,16 @@
         <input type="text" id="dish-edit-name" />
       </div>
       <div class="field">
-        <label>Zutaten / Beschreibung</label>
+        <label>Zutaten / Beschreibung (optional wenn Bestandteile angegeben)</label>
         <textarea id="dish-edit-text" style="height:90px"></textarea>
+      </div>
+      <div class="field">
+        <label>Bestandteile (optional)</label>
+        <div id="dish-edit-components-chips" class="dish-component-chips"></div>
+        <div style="position:relative">
+          <input type="text" id="dish-edit-components-input" placeholder="Gericht suchen…" autocomplete="off" oninput="onDishComponentInput(true)" />
+          <div id="dish-edit-components-list" class="meal-autocomplete-list" style="display:none;right:0"></div>
+        </div>
       </div>
       <div style="display:flex;gap:8px;margin-top:4px">
         <button class="btn-save btn-meal" style="margin-top:0;flex:1" onclick="saveEditDish()">Speichern</button>
@@ -408,10 +399,9 @@
 <script src="js/datetime.js?v=4"></script>
 <script src="js/edit.js?v=5"></script>
 <script src="js/symptom.js?v=4"></script>
-<script src="js/meal.js?v=4"></script>
+<script src="js/meal.js?v=5"></script>
 <script src="js/note.js?v=4"></script>
 <script src="js/history.js?v=5"></script>
-<script src="js/trends.js?v=4"></script>
 <script src="js/reminders.js?v=4"></script>
 <script src="js/sync.js?v=4"></script>
 <script src="js/app.js?v=3"></script>
