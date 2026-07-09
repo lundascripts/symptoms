@@ -15,6 +15,7 @@ if (!window._appInited) {
     scheduleReminders();
     document.querySelector('[data-filter="all"]').classList.add('active');
     initSwipe();
+    autoSync();
   });
 }
 

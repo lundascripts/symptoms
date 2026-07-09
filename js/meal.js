@@ -306,9 +306,11 @@ function renderDishList() {
         <span class="dish-name">${esc(r.name)}</span>
         <span class="dish-preview">${esc(preview)}</span>
       </button>
-      <button class="dish-fav-btn${r.favorite ? ' active' : ''}" onclick="toggleFavorite(${r.id})" title="Favorit">${r.favorite ? '★' : '☆'}</button>
-      <button class="dish-edit-btn" onclick="openEditDish(${r.id})" title="Bearbeiten">✏</button>
-      <button class="dish-del-btn" onclick="deleteDish(${r.id})" title="Löschen">×</button>
+      <div class="dish-actions">
+        <button class="dish-fav-btn${r.favorite ? ' active' : ''}" onclick="toggleFavorite(${r.id})" title="Favorit">${r.favorite ? '★' : '☆'}</button>
+        <button class="dish-edit-btn" onclick="openEditDish(${r.id})" title="Bearbeiten">✏</button>
+        <button class="dish-del-btn" onclick="deleteDish(${r.id})" title="Löschen">×</button>
+      </div>
     </div>`;
   }).join('');
 }

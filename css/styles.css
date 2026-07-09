@@ -432,15 +432,23 @@ input[type="range"]::-webkit-slider-thumb {
 .dish-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 0;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   margin-bottom: 8px;
   overflow: hidden;
 }
 
+.dish-actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+}
+
 .dish-use-btn {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
   padding: 12px 14px;
   background: none;
   border: none;
@@ -464,7 +472,6 @@ input[type="range"]::-webkit-slider-thumb {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 280px;
   display: block;
 }
 
