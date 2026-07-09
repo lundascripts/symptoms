@@ -41,6 +41,7 @@ function _clearMealEntry() {
 // ── Name autocomplete ──
 
 function onMealInput() {
+  hideMealIngredientAutocomplete();
   const val = document.getElementById('meal-food-input').value.trim();
   if (!val) { hideMealAutocomplete(); return; }
   const q = val.toLowerCase();
@@ -95,6 +96,7 @@ function selectMealNameAutocomplete(id) {
 // ── Ingredient autocomplete ──
 
 function onMealIngredientInput() {
+  hideMealAutocomplete();
   const val = document.getElementById('meal-ingredient-input').value.trim();
   if (!val) { hideMealIngredientAutocomplete(); return; }
   const q = val.toLowerCase();
