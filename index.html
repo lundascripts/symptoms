@@ -57,12 +57,12 @@
           <label>Was hast du gegessen?</label>
           <div class="meal-entry-card">
             <div style="position:relative">
-              <input type="text" id="meal-food-input" placeholder="Name…" autocomplete="off" oninput="onMealInput()" onkeydown="onMealKeydown(event)" />
+              <input type="text" id="meal-food-input" placeholder="Name…" autocomplete="off" oninput="onMealInput()" onkeydown="onMealKeydown(event)" onblur="setTimeout(hideMealAutocomplete,150)" />
               <div id="meal-autocomplete-list" class="meal-autocomplete-list" style="display:none"></div>
             </div>
             <div id="meal-ingredient-list"></div>
             <div class="symptom-add-row" style="position:relative">
-              <input type="text" id="meal-ingredient-input" placeholder="Zutat hinzufügen…" autocomplete="off" oninput="onMealIngredientInput()" onkeydown="onMealIngredientKeydown(event)" />
+              <input type="text" id="meal-ingredient-input" placeholder="Zutat hinzufügen…" autocomplete="off" oninput="onMealIngredientInput()" onkeydown="onMealIngredientKeydown(event)" onblur="setTimeout(hideMealIngredientAutocomplete,150)" />
               <button class="symptom-add-btn" onclick="addMealIngredientFromInput()">+</button>
               <div id="meal-ingredient-autocomplete-list" class="meal-autocomplete-list" style="display:none"></div>
             </div>
