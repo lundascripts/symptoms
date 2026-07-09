@@ -267,8 +267,6 @@ function toggleFavorite(id) {
 
 // ── Dish modal ──
 
-let _newComponents = [];
-let _editComponents = [];
 
 function openDishModal() {
   const s = document.getElementById('dish-search');
@@ -341,22 +339,181 @@ function toggleNewDishForm() {
   }
 }
 
+// ── Dish form ingredient rows (shared for new + edit) ──
+
+let _newDishIngredients  = [];  // [{id|null, name, components:[]}]
+let _editDishIngredients = [];
+let _editDishId = null;
+
+function _dishIngredients(isEdit) { return isEdit ? _editDishIngredients : _newDishIngredients; }
+function _setDishIngredients(isEdit, arr) { if (isEdit) _editDishIngredients = arr; else _newDishIngredients = arr; }
+
+function _renderDishIngredientList(isEdit) {
+  const id = isEdit ? 'dish-edit-ingredient-list' : 'dish-new-ingredient-list';
+  const el = document.getElementById(id);
+  if (!el) return;
+  const arr = _dishIngredients(isEdit);
+  if (!arr.length) { el.innerHTML = ''; return; }
+  el.innerHTML = arr.map((ing, i) => `
+    <div class="meal-row">
+      <div class="meal-row-info">
+        <span class="meal-row-name">${esc(ingredientLabel(ing))}</span>
+      </div>
+      <button class="meal-row-edit" onclick="_editDishIngredientRow(${i},${isEdit})" title="Bearbeiten">✏</button>
+      <button class="meal-row-del" onclick="_removeDishIngredient(${i},${isEdit})">×</button>
+    </div>`).join('');
+}
+
+function _removeDishIngredient(i, isEdit) {
+  _dishIngredients(isEdit).splice(i, 1);
+  _renderDishIngredientList(isEdit);
+}
+
+function _editDishIngredientRow(i, isEdit) {
+  const arr = _dishIngredients(isEdit);
+  const ing = arr[i];
+  const inputId = isEdit ? 'dish-edit-ingredient-input' : 'dish-new-ingredient-input';
+  document.getElementById(inputId).value = ing.name;
+  arr.splice(i, 1);
+  _renderDishIngredientList(isEdit);
+  document.getElementById(inputId).focus();
+}
+
+function _pushDishIngredient(isEdit, ing) {
+  _dishIngredients(isEdit).push(ing);
+  _renderDishIngredientList(isEdit);
+}
+
+// ── Dish name autocomplete ──
+
+function onDishNameInput(isEdit) {
+  const inputId = isEdit ? 'dish-edit-name' : 'dish-new-name';
+  const listId  = isEdit ? 'dish-edit-name-autocomplete' : 'dish-new-name-autocomplete';
+  const val = document.getElementById(inputId).value.trim();
+  const list = document.getElementById(listId);
+  if (!val) { list.style.display = 'none'; return; }
+  const q = val.toLowerCase();
+  const dishes = getMealTemplates().filter(d => d.name.toLowerCase().includes(q) && d.id !== _editDishId);
+  const dishNames = new Set(dishes.map(d => d.name.toLowerCase()));
+  const terms = getUsedTerms().filter(t => t.toLowerCase().includes(q) && !dishNames.has(t.toLowerCase()));
+  if (!dishes.length && !terms.length) { list.style.display = 'none'; return; }
+  list.style.display = '';
+  list.innerHTML = [
+    ...dishes.map(d => {
+      const sub = _resolveComponentNames(d).join(', ') || d.text || '';
+      return `<button class="meal-autocomplete-item" onclick="selectDishName(${d.id},${isEdit})">${esc(d.name)}<span class="meal-autocomplete-sub">${esc(sub)}</span></button>`;
+    }),
+    ...terms.map(t => `<button class="meal-autocomplete-item meal-autocomplete-term" onclick="selectDishNameTerm('${esc(t)}',${isEdit})">${esc(t)}</button>`),
+  ].join('');
+}
+
+function onDishNameKeydown(e, isEdit) {
+  if (e.key === 'Escape') hideDishNameAutocomplete(isEdit);
+}
+
+function hideDishNameAutocomplete(isEdit) {
+  const id = isEdit ? 'dish-edit-name-autocomplete' : 'dish-new-name-autocomplete';
+  const el = document.getElementById(id);
+  if (el) el.style.display = 'none';
+}
+
+function selectDishName(id, isEdit) {
+  const d = getMealTemplates().find(d => d.id === id);
+  if (!d) return;
+  const inputId = isEdit ? 'dish-edit-name' : 'dish-new-name';
+  document.getElementById(inputId).value = d.name;
+  hideDishNameAutocomplete(isEdit);
+}
+
+function selectDishNameTerm(name, isEdit) {
+  const inputId = isEdit ? 'dish-edit-name' : 'dish-new-name';
+  document.getElementById(inputId).value = name;
+  hideDishNameAutocomplete(isEdit);
+}
+
+// ── Dish ingredient autocomplete ──
+
+function onDishIngredientInput(isEdit) {
+  const inputId = isEdit ? 'dish-edit-ingredient-input' : 'dish-new-ingredient-input';
+  const listId  = isEdit ? 'dish-edit-ingredient-autocomplete' : 'dish-new-ingredient-autocomplete';
+  const val = document.getElementById(inputId).value.trim();
+  const list = document.getElementById(listId);
+  if (!val) { list.style.display = 'none'; return; }
+  const q = val.toLowerCase();
+  const dishes = getMealTemplates().filter(d => d.name.toLowerCase().includes(q));
+  const dishNames = new Set(dishes.map(d => d.name.toLowerCase()));
+  const terms = getUsedTerms().filter(t => t.toLowerCase().includes(q) && !dishNames.has(t.toLowerCase()));
+  if (!dishes.length && !terms.length) { list.style.display = 'none'; return; }
+  list.style.display = '';
+  list.innerHTML = [
+    ...dishes.map(d => {
+      const sub = _resolveComponentNames(d).join(', ') || d.text || '';
+      return `<button class="meal-autocomplete-item" onclick="selectDishIngredientAutocomplete(${d.id},${isEdit})">${esc(d.name)}<span class="meal-autocomplete-sub">${esc(sub)}</span></button>`;
+    }),
+    ...terms.map(t => `<button class="meal-autocomplete-item meal-autocomplete-term" onclick="selectDishIngredientTerm('${esc(t)}',${isEdit})">${esc(t)}</button>`),
+  ].join('');
+}
+
+function onDishIngredientKeydown(e, isEdit) {
+  if (e.key === 'Enter') { e.preventDefault(); addDishIngredientFromInput(isEdit); }
+  if (e.key === 'Escape') hideDishIngredientAutocomplete(isEdit);
+}
+
+function hideDishIngredientAutocomplete(isEdit) {
+  const id = isEdit ? 'dish-edit-ingredient-autocomplete' : 'dish-new-ingredient-autocomplete';
+  const el = document.getElementById(id);
+  if (el) el.style.display = 'none';
+}
+
+function selectDishIngredientAutocomplete(id, isEdit) {
+  const d = getMealTemplates().find(d => d.id === id);
+  if (!d) return;
+  _pushDishIngredient(isEdit, { id: d.id, name: d.name, components: _resolveAllIngredients(d) });
+  const inputId = isEdit ? 'dish-edit-ingredient-input' : 'dish-new-ingredient-input';
+  document.getElementById(inputId).value = '';
+  hideDishIngredientAutocomplete(isEdit);
+}
+
+function selectDishIngredientTerm(name, isEdit) {
+  _pushDishIngredient(isEdit, { id: null, name, components: [] });
+  const inputId = isEdit ? 'dish-edit-ingredient-input' : 'dish-new-ingredient-input';
+  document.getElementById(inputId).value = '';
+  hideDishIngredientAutocomplete(isEdit);
+}
+
+function addDishIngredientFromInput(isEdit) {
+  const inputId = isEdit ? 'dish-edit-ingredient-input' : 'dish-new-ingredient-input';
+  const val = document.getElementById(inputId).value.trim();
+  if (!val) return;
+  hideDishIngredientAutocomplete(isEdit);
+  const matched = getMealTemplates().find(d => d.name.toLowerCase() === val.toLowerCase());
+  if (matched) {
+    _pushDishIngredient(isEdit, { id: matched.id, name: matched.name, components: _resolveAllIngredients(matched) });
+  } else {
+    _pushDishIngredient(isEdit, { id: null, name: val, components: [] });
+  }
+  document.getElementById(inputId).value = '';
+}
+
+// ── Save / reset ──
+
 function _resetNewDishForm() {
-  _newComponents = [];
+  _newDishIngredients = [];
   document.getElementById('dish-new-name').value = '';
-  document.getElementById('dish-new-text').value = '';
-  document.getElementById('dish-new-components-input').value = '';
-  document.getElementById('dish-new-components-list').style.display = 'none';
-  _renderComponentChips('dish-new-components-chips', _newComponents, false);
+  document.getElementById('dish-new-ingredient-input').value = '';
+  hideDishNameAutocomplete(false);
+  hideDishIngredientAutocomplete(false);
+  _renderDishIngredientList(false);
 }
 
 function saveNewDish() {
   const name = document.getElementById('dish-new-name').value.trim();
-  const text = document.getElementById('dish-new-text').value.trim();
   if (!name) { toast('Bitte einen Namen eingeben.'); return; }
   const dishs = getMealTemplates();
   if (dishs.some(d => d.name.toLowerCase() === name.toLowerCase())) { toast(`„${name}" gibt es bereits.`); return; }
-  dishs.push({ id: Date.now(), name, text, components: _newComponents.map(c => c.id) });
+  const components = _newDishIngredients.filter(i => i.id).map(i => i.id);
+  const text = _newDishIngredients.filter(i => !i.id).map(i => i.name).join(', ');
+  dishs.push({ id: Date.now(), name, text, components });
   saveMealTemplates(dishs);
   autoSync();
   document.getElementById('dish-new-form').style.display = 'none';
@@ -367,36 +524,37 @@ function saveNewDish() {
 
 // ── Edit dish ──
 
-let _editDishId = null;
-
 function openEditDish(id) {
   const d = getMealTemplates().find(d => d.id === id);
   if (!d) return;
   _editDishId = id;
   document.getElementById('dish-new-form').style.display = 'none';
   document.getElementById('dish-edit-name').value = d.name;
-  document.getElementById('dish-edit-text').value = d.text || '';
-  document.getElementById('dish-edit-components-input').value = '';
-  document.getElementById('dish-edit-components-list').style.display = 'none';
+  document.getElementById('dish-edit-ingredient-input').value = '';
+  hideDishNameAutocomplete(true);
+  hideDishIngredientAutocomplete(true);
   const all = getMealTemplates();
-  _editComponents = (d.components || []).map(cid => {
+  const compRows = (d.components || []).map(cid => {
     const t = all.find(t => t.id === cid);
-    return t ? { id: t.id, name: t.name } : null;
+    return t ? { id: t.id, name: t.name, components: _resolveAllIngredients(t) } : null;
   }).filter(Boolean);
-  _renderComponentChips('dish-edit-components-chips', _editComponents, true);
+  const textRows = (d.text || '').split(',').map(s => s.trim()).filter(Boolean)
+    .map(name => ({ id: null, name, components: [] }));
+  _editDishIngredients = [...compRows, ...textRows];
+  _renderDishIngredientList(true);
   document.getElementById('dish-edit-form').style.display = 'block';
   document.getElementById('dish-edit-name').focus();
 }
 
 function saveEditDish() {
   const name = document.getElementById('dish-edit-name').value.trim();
-  const text = document.getElementById('dish-edit-text').value.trim();
   if (!name) { toast('Bitte einen Namen eingeben.'); return; }
   const dishs = getMealTemplates();
   const d = dishs.find(d => d.id === _editDishId);
   if (!d) return;
-  d.name = name; d.text = text;
-  d.components = _editComponents.map(c => c.id);
+  d.name = name;
+  d.components = _editDishIngredients.filter(i => i.id).map(i => i.id);
+  d.text = _editDishIngredients.filter(i => !i.id).map(i => i.name).join(', ');
   saveMealTemplates(dishs);
   autoSync();
   document.getElementById('dish-edit-form').style.display = 'none';
@@ -409,54 +567,6 @@ function saveEditDish() {
 function cancelEditDish() {
   document.getElementById('dish-edit-form').style.display = 'none';
   _editDishId = null;
-}
-
-// ── Component chips (dish modal, shared) ──
-
-function _renderComponentChips(containerId, arr, isEdit) {
-  const el = document.getElementById(containerId);
-  if (!el) return;
-  el.innerHTML = arr.map((c, i) =>
-    `<span class="dish-component-chip">${esc(c.name)}<button onclick="_removeComponent(${i},${isEdit})" title="Entfernen">×</button></span>`
-  ).join('');
-}
-
-function _removeComponent(i, isEdit) {
-  if (isEdit) { _editComponents.splice(i, 1); _renderComponentChips('dish-edit-components-chips', _editComponents, true); }
-  else        { _newComponents.splice(i, 1);  _renderComponentChips('dish-new-components-chips', _newComponents, false); }
-}
-
-function onDishComponentInput(isEdit) {
-  const inputId = isEdit ? 'dish-edit-components-input' : 'dish-new-components-input';
-  const listId  = isEdit ? 'dish-edit-components-list'  : 'dish-new-components-list';
-  const current = isEdit ? _editComponents : _newComponents;
-  const val = document.getElementById(inputId).value.trim().toLowerCase();
-  const list = document.getElementById(listId);
-  if (!val) { list.style.display = 'none'; return; }
-  const currentIds = new Set(current.map(c => c.id));
-  if (isEdit && _editDishId) currentIds.add(_editDishId);
-  const matches = getMealTemplates().filter(d => d.name.toLowerCase().includes(val) && !currentIds.has(d.id));
-  if (!matches.length) { list.style.display = 'none'; return; }
-  list.style.display = '';
-  list.innerHTML = matches.map(d =>
-    `<button class="meal-autocomplete-item" onclick="_addComponent(${d.id},${isEdit})">${esc(d.name)}</button>`
-  ).join('');
-}
-
-function _addComponent(id, isEdit) {
-  const d = getMealTemplates().find(t => t.id === id);
-  if (!d) return;
-  if (isEdit) {
-    if (!_editComponents.some(c => c.id === id)) _editComponents.push({ id: d.id, name: d.name });
-    _renderComponentChips('dish-edit-components-chips', _editComponents, true);
-    document.getElementById('dish-edit-components-input').value = '';
-    document.getElementById('dish-edit-components-list').style.display = 'none';
-  } else {
-    if (!_newComponents.some(c => c.id === id)) _newComponents.push({ id: d.id, name: d.name });
-    _renderComponentChips('dish-new-components-chips', _newComponents, false);
-    document.getElementById('dish-new-components-input').value = '';
-    document.getElementById('dish-new-components-list').style.display = 'none';
-  }
 }
 
 function openDishModalWithName() {

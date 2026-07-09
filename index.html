@@ -270,38 +270,46 @@
     <div id="dish-new-form" style="display:none">
       <div class="field" style="margin-top:12px">
         <label>Name</label>
-        <input type="text" id="dish-new-name" placeholder="z.B. Porridge, Mittagssalat" />
-      </div>
-      <div class="field">
-        <label>Bestandteile (optional)</label>
-        <div id="dish-new-components-chips" class="dish-component-chips"></div>
         <div style="position:relative">
-          <input type="text" id="dish-new-components-input" placeholder="Gericht suchen…" autocomplete="off" oninput="onDishComponentInput(false)" />
-          <div id="dish-new-components-list" class="meal-autocomplete-list" style="display:none;right:0"></div>
+          <input type="text" id="dish-new-name" placeholder="z.B. Porridge, Mittagssalat" autocomplete="off"
+            oninput="onDishNameInput(false)" onkeydown="onDishNameKeydown(event,false)"
+            onblur="setTimeout(()=>hideDishNameAutocomplete(false),150)" />
+          <div id="dish-new-name-autocomplete" class="meal-autocomplete-list" style="display:none"></div>
         </div>
       </div>
       <div class="field">
-        <label>Zutaten / Beschreibung (optional)</label>
-        <textarea id="dish-new-text" placeholder="z.B. Haferflocken, Banane, Chiasamen, Mandelmilch, Walnüsse" style="height:90px"></textarea>
+        <label>Zutaten (optional)</label>
+        <div id="dish-new-ingredient-list"></div>
+        <div class="symptom-add-row" style="position:relative">
+          <input type="text" id="dish-new-ingredient-input" placeholder="Zutat hinzufügen…" autocomplete="off"
+            oninput="onDishIngredientInput(false)" onkeydown="onDishIngredientKeydown(event,false)"
+            onblur="setTimeout(()=>hideDishIngredientAutocomplete(false),150)" />
+          <button class="symptom-add-btn" onclick="addDishIngredientFromInput(false)">+</button>
+          <div id="dish-new-ingredient-autocomplete" class="meal-autocomplete-list" style="display:none"></div>
+        </div>
       </div>
       <button class="btn-save btn-meal" style="margin-top:0" onclick="saveNewDish()">Gericht speichern</button>
     </div>
     <div id="dish-edit-form" style="display:none">
       <div class="field" style="margin-top:12px">
         <label>Name</label>
-        <input type="text" id="dish-edit-name" />
-      </div>
-      <div class="field">
-        <label>Bestandteile (optional)</label>
-        <div id="dish-edit-components-chips" class="dish-component-chips"></div>
         <div style="position:relative">
-          <input type="text" id="dish-edit-components-input" placeholder="Gericht suchen…" autocomplete="off" oninput="onDishComponentInput(true)" />
-          <div id="dish-edit-components-list" class="meal-autocomplete-list" style="display:none;right:0"></div>
+          <input type="text" id="dish-edit-name" autocomplete="off"
+            oninput="onDishNameInput(true)" onkeydown="onDishNameKeydown(event,true)"
+            onblur="setTimeout(()=>hideDishNameAutocomplete(true),150)" />
+          <div id="dish-edit-name-autocomplete" class="meal-autocomplete-list" style="display:none"></div>
         </div>
       </div>
       <div class="field">
-        <label>Zutaten / Beschreibung (optional)</label>
-        <textarea id="dish-edit-text" style="height:90px"></textarea>
+        <label>Zutaten (optional)</label>
+        <div id="dish-edit-ingredient-list"></div>
+        <div class="symptom-add-row" style="position:relative">
+          <input type="text" id="dish-edit-ingredient-input" placeholder="Zutat hinzufügen…" autocomplete="off"
+            oninput="onDishIngredientInput(true)" onkeydown="onDishIngredientKeydown(event,true)"
+            onblur="setTimeout(()=>hideDishIngredientAutocomplete(true),150)" />
+          <button class="symptom-add-btn" onclick="addDishIngredientFromInput(true)">+</button>
+          <div id="dish-edit-ingredient-autocomplete" class="meal-autocomplete-list" style="display:none"></div>
+        </div>
       </div>
       <div style="display:flex;gap:8px;margin-top:4px">
         <button class="btn-save btn-meal" style="margin-top:0;flex:1" onclick="saveEditDish()">Speichern</button>
