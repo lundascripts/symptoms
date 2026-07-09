@@ -1,12 +1,173 @@
-// ── Meal rows (selected dishes / free entries) ──
+// ── Current meal entry (name + ingredient rows) ──
 
-let mealRows = []; // [{id: dishId|null, name, text, components: [{id,name}]}]
+let mealEntryName = '';          // string
+let mealEntryIngredients = [];   // [{id|null, name, components:[{id,name}]}]
 
-function rowLabel(row) {
-  if (row.components && row.components.length)
-    return row.name + ' (' + row.components.map(c => c.name).join(', ') + ')';
-  return row.name;
+function ingredientLabel(ing) {
+  if (ing.components && ing.components.length)
+    return ing.name + ' (' + ing.components.map(c => c.name).join(', ') + ')';
+  return ing.name;
 }
+
+function renderMealIngredientList() {
+  const el = document.getElementById('meal-ingredient-list');
+  if (!el) return;
+  if (mealEntryIngredients.length === 0) { el.innerHTML = ''; return; }
+  el.innerHTML = mealEntryIngredients.map((ing, i) => `
+    <div class="meal-row">
+      <div class="meal-row-info">
+        <span class="meal-row-name">${esc(ingredientLabel(ing))}</span>
+      </div>
+      <button class="meal-row-del" onclick="removeMealIngredient(${i})">×</button>
+    </div>
+  `).join('');
+}
+
+function removeMealIngredient(i) {
+  mealEntryIngredients.splice(i, 1);
+  renderMealIngredientList();
+}
+
+function _clearMealEntry() {
+  mealEntryName = '';
+  mealEntryIngredients = [];
+  document.getElementById('meal-food-input').value = '';
+  document.getElementById('meal-ingredient-input').value = '';
+  hideMealAutocomplete();
+  hideMealIngredientAutocomplete();
+  renderMealIngredientList();
+}
+
+// ── Name autocomplete ──
+
+function onMealInput() {
+  const val = document.getElementById('meal-food-input').value.trim();
+  if (!val) { hideMealAutocomplete(); return; }
+  const dishs = getMealTemplates().filter(d => d.name.toLowerCase().includes(val.toLowerCase()));
+  const list = document.getElementById('meal-autocomplete-list');
+  if (!dishs.length) { hideMealAutocomplete(); return; }
+  list.style.display = '';
+  list.innerHTML = dishs.map(d => {
+    const compNames = _resolveComponentNames(d);
+    const sub = compNames.length ? compNames.join(', ') : (d.text || '');
+    return `<button class="meal-autocomplete-item" onclick="selectMealNameAutocomplete(${d.id})">${esc(d.name)}<span class="meal-autocomplete-sub">${esc(sub)}</span></button>`;
+  }).join('');
+}
+
+function onMealKeydown(e) {
+  if (e.key === 'Escape') hideMealAutocomplete();
+}
+
+function hideMealAutocomplete() {
+  const el = document.getElementById('meal-autocomplete-list');
+  if (el) el.style.display = 'none';
+}
+
+function selectMealNameAutocomplete(id) {
+  const d = getMealTemplates().find(d => d.id === id);
+  if (!d) return;
+  document.getElementById('meal-food-input').value = d.name;
+  hideMealAutocomplete();
+  // prefill ingredients from components or text
+  mealEntryIngredients = [];
+  const compNames = _resolveComponentNames(d);
+  if (compNames.length) {
+    const all = getMealTemplates();
+    mealEntryIngredients = (d.components || []).map(cid => {
+      const t = all.find(t => t.id === cid);
+      return t ? { id: t.id, name: t.name, components: _resolveComponentObjects(t) } : null;
+    }).filter(Boolean);
+  } else if (d.text) {
+    // split free text by comma or newline as individual ingredients
+    mealEntryIngredients = d.text.split(/[,\n]/).map(s => s.trim()).filter(Boolean)
+      .map(name => ({ id: null, name, components: [] }));
+  }
+  renderMealIngredientList();
+  document.getElementById('meal-ingredient-input').focus();
+}
+
+// ── Ingredient autocomplete ──
+
+function onMealIngredientInput() {
+  const val = document.getElementById('meal-ingredient-input').value.trim();
+  if (!val) { hideMealIngredientAutocomplete(); return; }
+  const dishs = getMealTemplates().filter(d => d.name.toLowerCase().includes(val.toLowerCase()));
+  const list = document.getElementById('meal-ingredient-autocomplete-list');
+  if (!dishs.length) { hideMealIngredientAutocomplete(); return; }
+  list.style.display = '';
+  list.innerHTML = dishs.map(d => {
+    const compNames = _resolveComponentNames(d);
+    const sub = compNames.length ? compNames.join(', ') : (d.text || '');
+    return `<button class="meal-autocomplete-item" onclick="selectMealIngredientAutocomplete(${d.id})">${esc(d.name)}<span class="meal-autocomplete-sub">${esc(sub)}</span></button>`;
+  }).join('');
+}
+
+function onMealIngredientKeydown(e) {
+  if (e.key === 'Enter') { e.preventDefault(); addMealIngredientFromInput(); }
+  if (e.key === 'Escape') hideMealIngredientAutocomplete();
+}
+
+function hideMealIngredientAutocomplete() {
+  const el = document.getElementById('meal-ingredient-autocomplete-list');
+  if (el) el.style.display = 'none';
+}
+
+function selectMealIngredientAutocomplete(id) {
+  const d = getMealTemplates().find(d => d.id === id);
+  if (!d) return;
+  _pushIngredient({ id: d.id, name: d.name, components: _resolveComponentObjects(d) });
+  document.getElementById('meal-ingredient-input').value = '';
+  hideMealIngredientAutocomplete();
+}
+
+function addMealIngredientFromInput() {
+  const val = document.getElementById('meal-ingredient-input').value.trim();
+  if (!val) return;
+  hideMealIngredientAutocomplete();
+  const matched = getMealTemplates().find(d => d.name.toLowerCase() === val.toLowerCase());
+  if (matched) {
+    _pushIngredient({ id: matched.id, name: matched.name, components: _resolveComponentObjects(matched) });
+  } else {
+    _pushIngredient({ id: null, name: val, components: [] });
+  }
+  document.getElementById('meal-ingredient-input').value = '';
+}
+
+function _pushIngredient(ing) {
+  mealEntryIngredients.push(ing);
+  renderMealIngredientList();
+}
+
+// ── Commit / save as dish ──
+
+function commitMealEntry() {
+  const name = document.getElementById('meal-food-input').value.trim();
+  if (!name) { toast('Bitte einen Namen eingeben.'); return; }
+  if (mealEntryIngredients.length === 0) { toast('Bitte mindestens eine Zutat angeben.'); return; }
+  const label = name + ' (' + mealEntryIngredients.map(ingredientLabel).join(', ') + ')';
+  mealRows.push({ name, ingredients: mealEntryIngredients.slice(), label });
+  renderMealRows();
+  _clearMealEntry();
+}
+
+function saveMealEntryAsDish() {
+  const name = document.getElementById('meal-food-input').value.trim();
+  if (!name) { toast('Bitte einen Namen eingeben.'); return; }
+  const dishs = getMealTemplates();
+  if (dishs.some(d => d.name.toLowerCase() === name.toLowerCase())) {
+    toast(`„${name}" gibt es bereits.`); return;
+  }
+  const compIds = mealEntryIngredients.filter(i => i.id).map(i => i.id);
+  const freeText = mealEntryIngredients.filter(i => !i.id).map(i => i.name).join(', ');
+  dishs.push({ id: Date.now(), name, text: freeText, components: compIds });
+  saveMealTemplates(dishs);
+  toast(`Gericht „${name}" gespeichert ✓`);
+  renderMealFavoriteChips();
+}
+
+// ── Meal rows (committed entries) ──
+
+let mealRows = []; // [{name, ingredients, label}]
 
 function renderMealRows() {
   const container = document.getElementById('meal-rows');
@@ -15,8 +176,7 @@ function renderMealRows() {
   container.innerHTML = mealRows.map((row, i) => `
     <div class="meal-row">
       <div class="meal-row-info">
-        <span class="meal-row-name">${esc(rowLabel(row))}</span>
-        ${row.text && !(row.components && row.components.length) ? `<span class="meal-row-text">${esc(row.text)}</span>` : ''}
+        <span class="meal-row-name">${esc(row.label)}</span>
       </div>
       <button class="meal-row-del" onclick="removeMealRow(${i})">×</button>
     </div>
@@ -31,105 +191,21 @@ function removeMealRow(i) {
 function clearMealRows() {
   mealRows = [];
   renderMealRows();
-  document.getElementById('meal-food-input').value = '';
-  document.getElementById('meal-food-detail').value = '';
-  hideMealAutocomplete();
+  _clearMealEntry();
 }
 
-// ── Autocomplete ──
+// ── Helpers ──
 
-function onMealInput() {
-  const val = document.getElementById('meal-food-input').value.trim();
-  if (!val) { hideMealAutocomplete(); return; }
-  const dishs = getMealTemplates().filter(d => d.name.toLowerCase().includes(val.toLowerCase()));
-  const list = document.getElementById('meal-autocomplete-list');
-  if (dishs.length === 0) { hideMealAutocomplete(); return; }
-  list.style.display = '';
-  list.innerHTML = dishs.map(d => {
-    const compNames = _getComponentNames(d);
-    const sub = compNames.length ? compNames.join(', ') : d.text;
-    return `<button class="meal-autocomplete-item" onclick="selectMealAutocomplete(${d.id})">${esc(d.name)}<span class="meal-autocomplete-sub">${esc(sub)}</span></button>`;
-  }).join('');
-}
-
-function onMealKeydown(e) {
-  if (e.key === 'Enter') {
-    const val = document.getElementById('meal-food-input').value.trim();
-    if (!val) return;
-    e.preventDefault();
-    addMealFromInput();
-  }
-  if (e.key === 'Escape') hideMealAutocomplete();
-}
-
-function selectMealAutocomplete(id) {
-  const d = getMealTemplates().find(d => d.id === id);
-  if (!d) return;
-  const compNames = _getComponentNames(d);
-  document.getElementById('meal-food-input').value = d.name;
-  document.getElementById('meal-food-detail').value = compNames.length ? compNames.join(', ') : (d.text || '');
-  hideMealAutocomplete();
-  document.getElementById('meal-food-detail').focus();
-}
-
-function _getComponentNames(d) {
-  if (!d.components || d.components.length === 0) return [];
+function _resolveComponentNames(d) {
+  if (!d.components || !d.components.length) return [];
   const all = getMealTemplates();
   return d.components.map(id => { const t = all.find(t => t.id === id); return t ? t.name : null; }).filter(Boolean);
 }
 
-function hideMealAutocomplete() {
-  document.getElementById('meal-autocomplete-list').style.display = 'none';
-}
-
-function addMealDishRow(d) {
-  if (mealRows.some(r => r.id === d.id)) return; // no duplicates
-  const components = resolveComponents(d);
-  mealRows.push({ id: d.id, name: d.name, text: d.text, components });
-  renderMealRows();
-}
-
-function resolveComponents(d) {
-  if (!d.components || d.components.length === 0) return [];
+function _resolveComponentObjects(d) {
+  if (!d.components || !d.components.length) return [];
   const all = getMealTemplates();
-  return d.components.map(id => {
-    const found = all.find(t => t.id === id);
-    return found ? { id: found.id, name: found.name } : null;
-  }).filter(Boolean);
-}
-
-function addMealFromInput() {
-  const name = document.getElementById('meal-food-input').value.trim();
-  const detail = document.getElementById('meal-food-detail').value.trim();
-  if (!name) return;
-  hideMealAutocomplete();
-  // check if it matches a saved dish exactly (by name, case-insensitive)
-  const matched = getMealTemplates().find(d => d.name.toLowerCase() === name.toLowerCase());
-  if (matched) {
-    const components = resolveComponents(matched);
-    mealRows.push({ id: matched.id, name: matched.name, text: detail || matched.text, components });
-  } else {
-    mealRows.push({ id: null, name, text: detail, components: [] });
-  }
-  renderMealRows();
-  document.getElementById('meal-food-input').value = '';
-  document.getElementById('meal-food-detail').value = '';
-}
-
-function openDishModalWithName() {
-  const name = document.getElementById('meal-food-input').value.trim();
-  openDishModal();
-  _resetNewDishForm();
-  document.getElementById('dish-new-form').style.display = 'block';
-  if (name) document.getElementById('dish-new-name').value = name;
-  document.getElementById('dish-new-name').focus();
-}
-
-function addMealFreeRow(name) {
-  mealRows.push({ id: null, name, text: '' });
-  renderMealRows();
-  document.getElementById('meal-food-input').value = '';
-  hideMealAutocomplete();
+  return d.components.map(id => { const t = all.find(t => t.id === id); return t ? { id: t.id, name: t.name } : null; }).filter(Boolean);
 }
 
 // ── Favorite chips ──
@@ -141,7 +217,7 @@ function renderMealFavoriteChips() {
   const favs = getMealTemplates().filter(d => d.favorite);
   field.style.display = favs.length > 0 ? '' : 'none';
   container.innerHTML = favs.map(d =>
-    `<button class="quick-chip" onclick="useDish(${d.id})">${esc(d.name)}</button>`
+    `<button class="quick-chip" onclick="selectMealNameAutocomplete(${d.id})">${esc(d.name)}</button>`
   ).join('');
 }
 
@@ -157,8 +233,8 @@ function toggleFavorite(id) {
 
 // ── Dish modal ──
 
-let _newComponents = [];    // [{id, name}] for the new-dish form
-let _editComponents = [];   // [{id, name}] for the edit-dish form
+let _newComponents = [];
+let _editComponents = [];
 
 function openDishModal() {
   renderDishList();
@@ -181,16 +257,11 @@ function renderDishList() {
     return;
   }
   list.innerHTML = dishs.map(r => {
-    const compNames = (r.components || []).map(id => {
-      const t = dishs.find(d => d.id === id);
-      return t ? t.name : null;
-    }).filter(Boolean);
-    const preview = compNames.length
-      ? r.name + ' (' + compNames.join(', ') + ')'
-      : r.text;
+    const compNames = _resolveComponentNames(r);
+    const preview = compNames.length ? r.name + ' (' + compNames.join(', ') + ')' : r.text;
     return `
     <div class="dish-item">
-      <button class="dish-use-btn" onclick="useDish(${r.id})">
+      <button class="dish-use-btn" onclick="selectMealNameAutocomplete(${r.id}); closeDishModal()">
         <span class="dish-name">${esc(r.name)}</span>
         <span class="dish-preview">${esc(preview)}</span>
       </button>
@@ -199,13 +270,6 @@ function renderDishList() {
       <button class="dish-del-btn" onclick="deleteDish(${r.id})" title="Löschen">×</button>
     </div>`;
   }).join('');
-}
-
-function useDish(id) {
-  const d = getMealTemplates().find(d => d.id === id);
-  if (!d) return;
-  addMealDishRow(d);
-  document.getElementById('dish-modal').classList.remove('open');
 }
 
 function deleteDish(id) {
@@ -283,8 +347,7 @@ function saveEditDish() {
   const dishs = getMealTemplates();
   const d = dishs.find(d => d.id === _editDishId);
   if (!d) return;
-  d.name = name;
-  d.text = text;
+  d.name = name; d.text = text;
   d.components = _editComponents.map(c => c.id);
   saveMealTemplates(dishs);
   document.getElementById('dish-edit-form').style.display = 'none';
@@ -299,7 +362,7 @@ function cancelEditDish() {
   _editDishId = null;
 }
 
-// ── Component chips (shared) ──
+// ── Component chips (dish modal, shared) ──
 
 function _renderComponentChips(containerId, arr, isEdit) {
   const el = document.getElementById(containerId);
@@ -322,11 +385,8 @@ function onDishComponentInput(isEdit) {
   const list = document.getElementById(listId);
   if (!val) { list.style.display = 'none'; return; }
   const currentIds = new Set(current.map(c => c.id));
-  // exclude self when editing
   if (isEdit && _editDishId) currentIds.add(_editDishId);
-  const matches = getMealTemplates().filter(d =>
-    d.name.toLowerCase().includes(val) && !currentIds.has(d.id)
-  );
+  const matches = getMealTemplates().filter(d => d.name.toLowerCase().includes(val) && !currentIds.has(d.id));
   if (!matches.length) { list.style.display = 'none'; return; }
   list.style.display = '';
   list.innerHTML = matches.map(d =>
@@ -350,11 +410,20 @@ function _addComponent(id, isEdit) {
   }
 }
 
+function openDishModalWithName() {
+  const name = document.getElementById('meal-food-input').value.trim();
+  openDishModal();
+  _resetNewDishForm();
+  document.getElementById('dish-new-form').style.display = 'block';
+  if (name) document.getElementById('dish-new-name').value = name;
+  document.getElementById('dish-new-name').focus();
+}
+
 // ── Save meal ──
 
 function saveMeal() {
-  if (mealRows.length === 0) { toast('Bitte mindestens ein Gericht eintragen.'); return; }
-  const food = mealRows.map(r => rowLabel(r)).join('\n');
+  if (mealRows.length === 0) { toast('Bitte mindestens einen Eintrag übernehmen.'); return; }
+  const food = mealRows.map(r => r.label).join('\n');
   const entries = getEntries();
   entries.push({ id: Date.now(), type: 'meal', datetime: document.getElementById('meal-dt').value,
     food, notes: document.getElementById('meal-notes').value.trim() || null });
@@ -362,9 +431,8 @@ function saveMeal() {
   autoSync();
   mealRows = [];
   renderMealRows();
-  document.getElementById('meal-food-input').value = '';
+  _clearMealEntry();
   document.getElementById('meal-notes').value = '';
   setNow('meal-dt');
   toast('Mahlzeit gespeichert ✓');
-  autoSync();
 }

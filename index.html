@@ -55,15 +55,20 @@
 
         <div class="field">
           <label>Was hast du gegessen?</label>
-          <div class="meal-entry-inputs">
+          <div class="meal-entry-card">
             <div style="position:relative">
               <input type="text" id="meal-food-input" placeholder="Name…" autocomplete="off" oninput="onMealInput()" onkeydown="onMealKeydown(event)" />
               <div id="meal-autocomplete-list" class="meal-autocomplete-list" style="display:none"></div>
             </div>
-            <div class="meal-entry-bottom-row">
-              <input type="text" id="meal-food-detail" placeholder="Zutaten / Bestandteile (optional)" autocomplete="off" />
-              <button class="symptom-add-btn" onclick="addMealFromInput()" title="Hinzufügen">+</button>
-              <button class="symptom-add-btn" onclick="openDishModalWithName()" title="Als Gericht anlegen">📋</button>
+            <div id="meal-ingredient-list"></div>
+            <div class="symptom-add-row" style="position:relative">
+              <input type="text" id="meal-ingredient-input" placeholder="Zutat hinzufügen…" autocomplete="off" oninput="onMealIngredientInput()" onkeydown="onMealIngredientKeydown(event)" />
+              <button class="symptom-add-btn" onclick="addMealIngredientFromInput()">+</button>
+              <div id="meal-ingredient-autocomplete-list" class="meal-autocomplete-list" style="display:none"></div>
+            </div>
+            <div class="meal-entry-actions">
+              <button class="btn-save btn-meal" style="margin-top:0" onclick="commitMealEntry()">Übernehmen</button>
+              <button class="btn-secondary" style="margin-top:0" onclick="saveMealEntryAsDish()">Als Gericht speichern</button>
             </div>
           </div>
           <div id="meal-rows" class="meal-rows"></div>
@@ -399,7 +404,7 @@
 <script src="js/datetime.js?v=4"></script>
 <script src="js/edit.js?v=5"></script>
 <script src="js/symptom.js?v=4"></script>
-<script src="js/meal.js?v=5"></script>
+<script src="js/meal.js?v=6"></script>
 <script src="js/note.js?v=4"></script>
 <script src="js/history.js?v=5"></script>
 <script src="js/reminders.js?v=4"></script>

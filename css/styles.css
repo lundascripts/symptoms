@@ -625,13 +625,17 @@ input[type="range"]::-webkit-slider-thumb {
 .dt-time-btn.selected { background: var(--accent-meal-light); color: var(--accent-meal); font-weight: 700; border-radius: 6px; }
 .dt-time-sep { font-size: 22px; font-weight: 700; color: var(--text2); align-self: center; }
 
-/* ── Meal entry inputs ── */
-.meal-entry-inputs { display: flex; flex-direction: column; gap: 6px; }
-
-.meal-entry-bottom-row {
-  display: flex; gap: 8px;
+/* ── Meal entry card ── */
+.meal-entry-card {
+  display: flex; flex-direction: column; gap: 8px;
+  background: var(--surface2); border-radius: var(--radius-sm);
+  padding: 10px 12px; border: 1px solid var(--border);
+  margin-bottom: 8px;
 }
-.meal-entry-bottom-row input { flex: 1; }
+
+.meal-entry-actions {
+  display: flex; flex-direction: column; gap: 6px; margin-top: 2px;
+}
 
 /* ── Meal rows ── */
 .meal-autocomplete-wrap { position: relative; display: flex; gap: 8px; }
