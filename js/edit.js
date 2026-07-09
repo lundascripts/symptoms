@@ -239,8 +239,9 @@ function removeEditMealIngredient(i) {
 function commitEditMealEntry() {
   const name = document.getElementById('edit-meal-name-input').value.trim();
   if (!name) { toast('Bitte einen Namen eingeben.'); return; }
-  if (editMealIngredients.length === 0) { toast('Bitte mindestens eine Zutat angeben.'); return; }
-  const label = name + ' (' + editMealIngredients.map(ingredientLabel).join(', ') + ')';
+  const label = editMealIngredients.length
+    ? name + ' (' + editMealIngredients.map(ingredientLabel).join(', ') + ')'
+    : name;
   editMealRows.push({ name, ingredients: editMealIngredients.slice(), label });
   editMealIngredients = [];
   document.getElementById('edit-meal-name-input').value = '';

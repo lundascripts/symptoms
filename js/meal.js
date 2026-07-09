@@ -143,8 +143,9 @@ function _pushIngredient(ing) {
 function commitMealEntry() {
   const name = document.getElementById('meal-food-input').value.trim();
   if (!name) { toast('Bitte einen Namen eingeben.'); return; }
-  if (mealEntryIngredients.length === 0) { toast('Bitte mindestens eine Zutat angeben.'); return; }
-  const label = name + ' (' + mealEntryIngredients.map(ingredientLabel).join(', ') + ')';
+  const label = mealEntryIngredients.length
+    ? name + ' (' + mealEntryIngredients.map(ingredientLabel).join(', ') + ')'
+    : name;
   mealRows.push({ name, ingredients: mealEntryIngredients.slice(), label });
   renderMealRows();
   _clearMealEntry();
