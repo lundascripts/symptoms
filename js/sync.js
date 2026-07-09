@@ -54,6 +54,7 @@ async function syncNow(opts = {}) {
     entries: getEntries(),
     dayNotes: getDayNotes(),
     deletedIds: getDeletedIds(),
+    mealTemplates: getMealTemplates(),
   };
 
   try {
@@ -72,6 +73,19 @@ async function syncNow(opts = {}) {
       saveEntries(getEntries().filter(e => !remoteDeleted.has(e.id)));
       const mergedDeleted = [...new Set([...getDeletedIds(), ...remoteDeleted])];
       saveDeletedIds(mergedDeleted);
+    }
+
+    // Merge incoming meal templates (ID-only dedup)
+    const incomingTemplates = merged.mealTemplates || [];
+    if (incomingTemplates.length > 0) {
+      const localTemplates = getMealTemplates();
+      const localTemplateIds = new Set(localTemplates.map(t => t.id));
+      const newTemplates = incomingTemplates.filter(t => !localTemplateIds.has(t.id));
+      if (newTemplates.length > 0) {
+        saveMealTemplates([...localTemplates, ...newTemplates]);
+        renderMealFavoriteChips();
+        if (typeof renderDishList === 'function') renderDishList();
+      }
     }
 
     const localIds = new Set(getEntries().map(e => e.id));

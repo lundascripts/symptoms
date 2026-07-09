@@ -161,6 +161,7 @@ function saveMealEntryAsDish() {
   const freeText = mealEntryIngredients.filter(i => !i.id).map(i => i.name).join(', ');
   dishs.push({ id: Date.now(), name, text: freeText, components: compIds });
   saveMealTemplates(dishs);
+  autoSync();
   toast(`Gericht „${name}" gespeichert ✓`);
   renderMealFavoriteChips();
 }
@@ -275,6 +276,7 @@ function renderDishList() {
 function deleteDish(id) {
   if (!confirm('Rezept löschen?')) return;
   saveMealTemplates(getMealTemplates().filter(r => r.id !== id));
+  autoSync();
   renderDishList();
   renderMealFavoriteChips();
 }
@@ -310,6 +312,7 @@ function saveNewDish() {
   if (dishs.some(d => d.name.toLowerCase() === name.toLowerCase())) { toast(`„${name}" gibt es bereits.`); return; }
   dishs.push({ id: Date.now(), name, text, components: _newComponents.map(c => c.id) });
   saveMealTemplates(dishs);
+  autoSync();
   document.getElementById('dish-new-form').style.display = 'none';
   _resetNewDishForm();
   renderDishList();
@@ -350,6 +353,7 @@ function saveEditDish() {
   d.name = name; d.text = text;
   d.components = _editComponents.map(c => c.id);
   saveMealTemplates(dishs);
+  autoSync();
   document.getElementById('dish-edit-form').style.display = 'none';
   _editDishId = null;
   renderDishList();

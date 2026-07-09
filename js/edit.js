@@ -3,6 +3,25 @@ let editSymptomRows = [];
 let editSelectedBristol = null;
 let editSelectedMood = null;
 
+// ── Edit meal state ──
+let editMealRows = [];         // [{name, ingredients, label}]
+let editMealIngredients = [];  // [{id|null, name, components:[]}] — current entry being built
+
+function _parseFoodString(food) {
+  if (!food) return [];
+  return food.split('\n').map(line => {
+    line = line.trim();
+    if (!line) return null;
+    const m = line.match(/^(.+?)\s*\((.+)\)$/);
+    if (m) {
+      const name = m[1].trim();
+      const ingredients = m[2].split(',').map(s => ({ id: null, name: s.trim(), components: [] }));
+      return { name, ingredients, label: line };
+    }
+    return { name: line, ingredients: [], label: line };
+  }).filter(Boolean);
+}
+
 function openEditModal(id) {
   const entry = getEntries().find(e => e.id === id);
   if (!entry) return;
@@ -16,7 +35,14 @@ function openEditModal(id) {
   document.getElementById('edit-save-as-dish-btn').style.display = isMeal ? '' : 'none';
 
   if (isMeal) {
-    document.getElementById('edit-meal-food').value = entry.food || '';
+    editMealRows = _parseFoodString(entry.food || '');
+    editMealIngredients = [];
+    document.getElementById('edit-meal-name-input').value = '';
+    document.getElementById('edit-meal-ingredient-input').value = '';
+    _hideEditMealAutocomplete();
+    _hideEditMealIngredientAutocomplete();
+    renderEditMealRows();
+    renderEditMealIngredientList();
     document.getElementById('edit-meal-notes').value = entry.notes || '';
   } else {
     // Symptom rows
@@ -141,9 +167,8 @@ function saveEdit() {
   entry.datetime = document.getElementById('edit-dt').value;
 
   if (entry.type === 'meal') {
-    const food = document.getElementById('edit-meal-food').value.trim();
-    if (!food) { toast('Bitte das Essen eintragen.'); return; }
-    entry.food = food;
+    if (editMealRows.length === 0) { toast('Bitte mindestens einen Eintrag übernehmen.'); return; }
+    entry.food = editMealRows.map(r => r.label).join('\n');
     entry.notes = document.getElementById('edit-meal-notes').value.trim() || null;
   } else {
     if (editSymptomRows.length === 0 && !editSelectedBristol && !editSelectedMood) {
@@ -167,10 +192,154 @@ function saveEdit() {
 }
 
 function saveEditMealAsDish() {
-  const food = document.getElementById('edit-meal-food').value.trim();
+  const name = editMealRows.length > 0 ? editMealRows[0].name : '';
   document.getElementById('edit-modal').classList.remove('open');
   openDishModal();
   document.getElementById('dish-new-form').style.display = 'block';
-  document.getElementById('dish-new-name').value = food.split('\n')[0].trim();
+  document.getElementById('dish-new-name').value = name;
   document.getElementById('dish-new-name').focus();
+}
+
+// ── Edit meal rows ──
+
+function renderEditMealRows() {
+  const el = document.getElementById('edit-meal-rows');
+  if (!el) return;
+  if (editMealRows.length === 0) { el.innerHTML = '<p style="color:var(--text-muted);font-size:0.9em;margin:0">Noch keine Einträge.</p>'; return; }
+  el.innerHTML = editMealRows.map((row, i) => `
+    <div class="meal-row">
+      <div class="meal-row-info"><span class="meal-row-name">${esc(row.label)}</span></div>
+      <button class="meal-row-del" onclick="removeEditMealRow(${i})">×</button>
+    </div>
+  `).join('');
+}
+
+function removeEditMealRow(i) {
+  editMealRows.splice(i, 1);
+  renderEditMealRows();
+}
+
+function renderEditMealIngredientList() {
+  const el = document.getElementById('edit-meal-ingredient-list');
+  if (!el) return;
+  if (editMealIngredients.length === 0) { el.innerHTML = ''; return; }
+  el.innerHTML = editMealIngredients.map((ing, i) => `
+    <div class="meal-row">
+      <div class="meal-row-info"><span class="meal-row-name">${esc(ingredientLabel(ing))}</span></div>
+      <button class="meal-row-del" onclick="removeEditMealIngredient(${i})">×</button>
+    </div>
+  `).join('');
+}
+
+function removeEditMealIngredient(i) {
+  editMealIngredients.splice(i, 1);
+  renderEditMealIngredientList();
+}
+
+function commitEditMealEntry() {
+  const name = document.getElementById('edit-meal-name-input').value.trim();
+  if (!name) { toast('Bitte einen Namen eingeben.'); return; }
+  if (editMealIngredients.length === 0) { toast('Bitte mindestens eine Zutat angeben.'); return; }
+  const label = name + ' (' + editMealIngredients.map(ingredientLabel).join(', ') + ')';
+  editMealRows.push({ name, ingredients: editMealIngredients.slice(), label });
+  editMealIngredients = [];
+  document.getElementById('edit-meal-name-input').value = '';
+  document.getElementById('edit-meal-ingredient-input').value = '';
+  _hideEditMealAutocomplete();
+  _hideEditMealIngredientAutocomplete();
+  renderEditMealRows();
+  renderEditMealIngredientList();
+}
+
+// ── Edit meal name autocomplete ──
+
+function onEditMealNameInput() {
+  const val = document.getElementById('edit-meal-name-input').value.trim();
+  if (!val) { _hideEditMealAutocomplete(); return; }
+  const dishes = getMealTemplates().filter(d => d.name.toLowerCase().includes(val.toLowerCase()));
+  const list = document.getElementById('edit-meal-name-autocomplete');
+  if (!dishes.length) { _hideEditMealAutocomplete(); return; }
+  list.style.display = '';
+  list.innerHTML = dishes.map(d => {
+    const sub = _resolveComponentNames(d).join(', ') || d.text || '';
+    return `<button class="meal-autocomplete-item" onclick="selectEditMealName(${d.id})">${esc(d.name)}<span class="meal-autocomplete-sub">${esc(sub)}</span></button>`;
+  }).join('');
+}
+
+function onEditMealNameKeydown(e) {
+  if (e.key === 'Escape') _hideEditMealAutocomplete();
+}
+
+function _hideEditMealAutocomplete() {
+  const el = document.getElementById('edit-meal-name-autocomplete');
+  if (el) el.style.display = 'none';
+}
+
+function selectEditMealName(id) {
+  const d = getMealTemplates().find(d => d.id === id);
+  if (!d) return;
+  document.getElementById('edit-meal-name-input').value = d.name;
+  _hideEditMealAutocomplete();
+  editMealIngredients = [];
+  const compNames = _resolveComponentNames(d);
+  if (compNames.length) {
+    const all = getMealTemplates();
+    editMealIngredients = (d.components || []).map(cid => {
+      const t = all.find(t => t.id === cid);
+      return t ? { id: t.id, name: t.name, components: _resolveComponentObjects(t) } : null;
+    }).filter(Boolean);
+  } else if (d.text) {
+    editMealIngredients = d.text.split(/[,\n]/).map(s => s.trim()).filter(Boolean)
+      .map(name => ({ id: null, name, components: [] }));
+  }
+  renderEditMealIngredientList();
+  document.getElementById('edit-meal-ingredient-input').focus();
+}
+
+// ── Edit meal ingredient autocomplete ──
+
+function onEditMealIngredientInput() {
+  const val = document.getElementById('edit-meal-ingredient-input').value.trim();
+  if (!val) { _hideEditMealIngredientAutocomplete(); return; }
+  const dishes = getMealTemplates().filter(d => d.name.toLowerCase().includes(val.toLowerCase()));
+  const list = document.getElementById('edit-meal-ingredient-autocomplete');
+  if (!dishes.length) { _hideEditMealIngredientAutocomplete(); return; }
+  list.style.display = '';
+  list.innerHTML = dishes.map(d => {
+    const sub = _resolveComponentNames(d).join(', ') || d.text || '';
+    return `<button class="meal-autocomplete-item" onclick="selectEditMealIngredient(${d.id})">${esc(d.name)}<span class="meal-autocomplete-sub">${esc(sub)}</span></button>`;
+  }).join('');
+}
+
+function onEditMealIngredientKeydown(e) {
+  if (e.key === 'Enter') { e.preventDefault(); _addEditMealIngredientFromInput(); }
+  if (e.key === 'Escape') _hideEditMealIngredientAutocomplete();
+}
+
+function _hideEditMealIngredientAutocomplete() {
+  const el = document.getElementById('edit-meal-ingredient-autocomplete');
+  if (el) el.style.display = 'none';
+}
+
+function selectEditMealIngredient(id) {
+  const d = getMealTemplates().find(d => d.id === id);
+  if (!d) return;
+  editMealIngredients.push({ id: d.id, name: d.name, components: _resolveComponentObjects(d) });
+  document.getElementById('edit-meal-ingredient-input').value = '';
+  _hideEditMealIngredientAutocomplete();
+  renderEditMealIngredientList();
+}
+
+function _addEditMealIngredientFromInput() {
+  const val = document.getElementById('edit-meal-ingredient-input').value.trim();
+  if (!val) return;
+  _hideEditMealIngredientAutocomplete();
+  const matched = getMealTemplates().find(d => d.name.toLowerCase() === val.toLowerCase());
+  if (matched) {
+    editMealIngredients.push({ id: matched.id, name: matched.name, components: _resolveComponentObjects(matched) });
+  } else {
+    editMealIngredients.push({ id: null, name: val, components: [] });
+  }
+  document.getElementById('edit-meal-ingredient-input').value = '';
+  renderEditMealIngredientList();
 }

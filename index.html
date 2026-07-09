@@ -315,9 +315,29 @@
     <!-- Mahlzeit -->
     <div id="edit-meal-section">
       <div class="field">
-        <label>Was hast du gegessen?</label>
-        <textarea id="edit-meal-food" style="height:100px"></textarea>
+        <label>Mahlzeit-Einträge</label>
+        <div id="edit-meal-rows"></div>
       </div>
+
+      <!-- Neuen Eintrag hinzufügen -->
+      <div class="field">
+        <label>Eintrag hinzufügen</label>
+        <div class="meal-entry-card">
+          <div class="autocomplete-wrap">
+            <input type="text" id="edit-meal-name-input" placeholder="Name des Gerichts…"
+              oninput="onEditMealNameInput()" onkeydown="onEditMealNameKeydown(event)" autocomplete="off" />
+            <div class="meal-autocomplete-list" id="edit-meal-name-autocomplete" style="display:none"></div>
+          </div>
+          <div class="autocomplete-wrap" style="margin-top:6px">
+            <input type="text" id="edit-meal-ingredient-input" placeholder="Zutat hinzufügen…"
+              oninput="onEditMealIngredientInput()" onkeydown="onEditMealIngredientKeydown(event)" autocomplete="off" />
+            <div class="meal-autocomplete-list" id="edit-meal-ingredient-autocomplete" style="display:none"></div>
+          </div>
+          <div id="edit-meal-ingredient-list"></div>
+          <button class="modal-btn" style="margin-top:8px" onclick="commitEditMealEntry()">Übernehmen</button>
+        </div>
+      </div>
+
       <div class="field">
         <label>Notizen (optional)</label>
         <input type="text" id="edit-meal-notes" />
@@ -402,13 +422,13 @@
 <script src="js/helpers.js?v=5"></script>
 <script src="js/storage.js?v=4"></script>
 <script src="js/datetime.js?v=4"></script>
-<script src="js/edit.js?v=5"></script>
+<script src="js/edit.js?v=6"></script>
 <script src="js/symptom.js?v=4"></script>
-<script src="js/meal.js?v=6"></script>
+<script src="js/meal.js?v=7"></script>
 <script src="js/note.js?v=4"></script>
 <script src="js/history.js?v=5"></script>
 <script src="js/reminders.js?v=4"></script>
-<script src="js/sync.js?v=4"></script>
+<script src="js/sync.js?v=5"></script>
 <script src="js/app.js?v=3"></script>
 </body>
 </html>
