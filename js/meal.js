@@ -43,15 +43,21 @@ function _clearMealEntry() {
 function onMealInput() {
   const val = document.getElementById('meal-food-input').value.trim();
   if (!val) { hideMealAutocomplete(); return; }
-  const dishs = getMealTemplates().filter(d => d.name.toLowerCase().includes(val.toLowerCase()));
+  const q = val.toLowerCase();
+  const dishes = getMealTemplates().filter(d => d.name.toLowerCase().includes(q));
+  const dishNames = new Set(dishes.map(d => d.name.toLowerCase()));
+  const terms = getUsedTerms().filter(t => t.toLowerCase().includes(q) && !dishNames.has(t.toLowerCase()));
   const list = document.getElementById('meal-autocomplete-list');
-  if (!dishs.length) { hideMealAutocomplete(); return; }
+  if (!dishes.length && !terms.length) { hideMealAutocomplete(); return; }
   list.style.display = '';
-  list.innerHTML = dishs.map(d => {
-    const compNames = _resolveComponentNames(d);
-    const sub = compNames.length ? compNames.join(', ') : (d.text || '');
-    return `<button class="meal-autocomplete-item" onclick="selectMealNameAutocomplete(${d.id})">${esc(d.name)}<span class="meal-autocomplete-sub">${esc(sub)}</span></button>`;
-  }).join('');
+  list.innerHTML = [
+    ...dishes.map(d => {
+      const compNames = _resolveComponentNames(d);
+      const sub = compNames.length ? compNames.join(', ') : (d.text || '');
+      return `<button class="meal-autocomplete-item" onclick="selectMealNameAutocomplete(${d.id})">${esc(d.name)}<span class="meal-autocomplete-sub">${esc(sub)}</span></button>`;
+    }),
+    ...terms.map(t => `<button class="meal-autocomplete-item meal-autocomplete-term" onclick="selectMealNameTerm('${esc(t)}')">${esc(t)}</button>`),
+  ].join('');
 }
 
 function onMealKeydown(e) {
@@ -91,15 +97,21 @@ function selectMealNameAutocomplete(id) {
 function onMealIngredientInput() {
   const val = document.getElementById('meal-ingredient-input').value.trim();
   if (!val) { hideMealIngredientAutocomplete(); return; }
-  const dishs = getMealTemplates().filter(d => d.name.toLowerCase().includes(val.toLowerCase()));
+  const q = val.toLowerCase();
+  const dishes = getMealTemplates().filter(d => d.name.toLowerCase().includes(q));
+  const dishNames = new Set(dishes.map(d => d.name.toLowerCase()));
+  const terms = getUsedTerms().filter(t => t.toLowerCase().includes(q) && !dishNames.has(t.toLowerCase()));
   const list = document.getElementById('meal-ingredient-autocomplete-list');
-  if (!dishs.length) { hideMealIngredientAutocomplete(); return; }
+  if (!dishes.length && !terms.length) { hideMealIngredientAutocomplete(); return; }
   list.style.display = '';
-  list.innerHTML = dishs.map(d => {
-    const compNames = _resolveComponentNames(d);
-    const sub = compNames.length ? compNames.join(', ') : (d.text || '');
-    return `<button class="meal-autocomplete-item" onclick="selectMealIngredientAutocomplete(${d.id})">${esc(d.name)}<span class="meal-autocomplete-sub">${esc(sub)}</span></button>`;
-  }).join('');
+  list.innerHTML = [
+    ...dishes.map(d => {
+      const compNames = _resolveComponentNames(d);
+      const sub = compNames.length ? compNames.join(', ') : (d.text || '');
+      return `<button class="meal-autocomplete-item" onclick="selectMealIngredientAutocomplete(${d.id})">${esc(d.name)}<span class="meal-autocomplete-sub">${esc(sub)}</span></button>`;
+    }),
+    ...terms.map(t => `<button class="meal-autocomplete-item meal-autocomplete-term" onclick="selectMealIngredientTerm('${esc(t)}')">${esc(t)}</button>`),
+  ].join('');
 }
 
 function onMealIngredientKeydown(e) {
@@ -116,6 +128,18 @@ function selectMealIngredientAutocomplete(id) {
   const d = getMealTemplates().find(d => d.id === id);
   if (!d) return;
   _pushIngredient({ id: d.id, name: d.name, components: _resolveAllIngredients(d) });
+  document.getElementById('meal-ingredient-input').value = '';
+  hideMealIngredientAutocomplete();
+}
+
+function selectMealNameTerm(name) {
+  document.getElementById('meal-food-input').value = name;
+  hideMealAutocomplete();
+  document.getElementById('meal-ingredient-input').focus();
+}
+
+function selectMealIngredientTerm(name) {
+  _pushIngredient({ id: null, name, components: [] });
   document.getElementById('meal-ingredient-input').value = '';
   hideMealIngredientAutocomplete();
 }
@@ -147,6 +171,7 @@ function commitMealEntry() {
     ? name + ' (' + mealEntryIngredients.map(ingredientLabel).join(', ') + ')'
     : name;
   mealRows.push({ name, ingredients: mealEntryIngredients.slice(), label });
+  addUsedTerms([name, ...mealEntryIngredients.map(i => i.name)]);
   renderMealRows();
   _clearMealEntry();
 }
@@ -434,6 +459,37 @@ function openDishModalWithName() {
   document.getElementById('dish-new-form').style.display = 'block';
   if (name) document.getElementById('dish-new-name').value = name;
   document.getElementById('dish-new-name').focus();
+}
+
+// ── Used terms management ──
+
+function renderUsedTermsList() {
+  const el = document.getElementById('used-terms-list');
+  if (!el) return;
+  const terms = getUsedTerms();
+  if (terms.length === 0) {
+    el.innerHTML = '<p style="color:var(--text-muted);font-size:0.9em;margin:0">Noch keine Begriffe gespeichert.</p>';
+    return;
+  }
+  el.innerHTML = terms.map((t, i) => `
+    <div class="used-term-row">
+      <span class="used-term-name">${esc(t)}</span>
+      <button class="used-term-del" onclick="deleteUsedTerm(${i})">×</button>
+    </div>
+  `).join('');
+}
+
+function deleteUsedTerm(i) {
+  const terms = getUsedTerms();
+  terms.splice(i, 1);
+  saveUsedTerms(terms);
+  renderUsedTermsList();
+}
+
+function clearAllUsedTerms() {
+  if (!confirm('Alle verwendeten Begriffe löschen?')) return;
+  saveUsedTerms([]);
+  renderUsedTermsList();
 }
 
 // ── Save meal ──

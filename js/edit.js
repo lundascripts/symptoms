@@ -243,6 +243,7 @@ function commitEditMealEntry() {
     ? name + ' (' + editMealIngredients.map(ingredientLabel).join(', ') + ')'
     : name;
   editMealRows.push({ name, ingredients: editMealIngredients.slice(), label });
+  addUsedTerms([name, ...editMealIngredients.map(i => i.name)]);
   editMealIngredients = [];
   document.getElementById('edit-meal-name-input').value = '';
   document.getElementById('edit-meal-ingredient-input').value = '';
@@ -257,14 +258,20 @@ function commitEditMealEntry() {
 function onEditMealNameInput() {
   const val = document.getElementById('edit-meal-name-input').value.trim();
   if (!val) { _hideEditMealAutocomplete(); return; }
-  const dishes = getMealTemplates().filter(d => d.name.toLowerCase().includes(val.toLowerCase()));
+  const q = val.toLowerCase();
+  const dishes = getMealTemplates().filter(d => d.name.toLowerCase().includes(q));
+  const dishNames = new Set(dishes.map(d => d.name.toLowerCase()));
+  const terms = getUsedTerms().filter(t => t.toLowerCase().includes(q) && !dishNames.has(t.toLowerCase()));
   const list = document.getElementById('edit-meal-name-autocomplete');
-  if (!dishes.length) { _hideEditMealAutocomplete(); return; }
+  if (!dishes.length && !terms.length) { _hideEditMealAutocomplete(); return; }
   list.style.display = '';
-  list.innerHTML = dishes.map(d => {
-    const sub = _resolveComponentNames(d).join(', ') || d.text || '';
-    return `<button class="meal-autocomplete-item" onclick="selectEditMealName(${d.id})">${esc(d.name)}<span class="meal-autocomplete-sub">${esc(sub)}</span></button>`;
-  }).join('');
+  list.innerHTML = [
+    ...dishes.map(d => {
+      const sub = _resolveComponentNames(d).join(', ') || d.text || '';
+      return `<button class="meal-autocomplete-item" onclick="selectEditMealName(${d.id})">${esc(d.name)}<span class="meal-autocomplete-sub">${esc(sub)}</span></button>`;
+    }),
+    ...terms.map(t => `<button class="meal-autocomplete-item meal-autocomplete-term" onclick="selectEditMealNameTerm('${esc(t)}')">${esc(t)}</button>`),
+  ].join('');
 }
 
 function onEditMealNameKeydown(e) {
@@ -302,14 +309,20 @@ function selectEditMealName(id) {
 function onEditMealIngredientInput() {
   const val = document.getElementById('edit-meal-ingredient-input').value.trim();
   if (!val) { _hideEditMealIngredientAutocomplete(); return; }
-  const dishes = getMealTemplates().filter(d => d.name.toLowerCase().includes(val.toLowerCase()));
+  const q = val.toLowerCase();
+  const dishes = getMealTemplates().filter(d => d.name.toLowerCase().includes(q));
+  const dishNames = new Set(dishes.map(d => d.name.toLowerCase()));
+  const terms = getUsedTerms().filter(t => t.toLowerCase().includes(q) && !dishNames.has(t.toLowerCase()));
   const list = document.getElementById('edit-meal-ingredient-autocomplete');
-  if (!dishes.length) { _hideEditMealIngredientAutocomplete(); return; }
+  if (!dishes.length && !terms.length) { _hideEditMealIngredientAutocomplete(); return; }
   list.style.display = '';
-  list.innerHTML = dishes.map(d => {
-    const sub = _resolveComponentNames(d).join(', ') || d.text || '';
-    return `<button class="meal-autocomplete-item" onclick="selectEditMealIngredient(${d.id})">${esc(d.name)}<span class="meal-autocomplete-sub">${esc(sub)}</span></button>`;
-  }).join('');
+  list.innerHTML = [
+    ...dishes.map(d => {
+      const sub = _resolveComponentNames(d).join(', ') || d.text || '';
+      return `<button class="meal-autocomplete-item" onclick="selectEditMealIngredient(${d.id})">${esc(d.name)}<span class="meal-autocomplete-sub">${esc(sub)}</span></button>`;
+    }),
+    ...terms.map(t => `<button class="meal-autocomplete-item meal-autocomplete-term" onclick="selectEditMealIngredientTerm('${esc(t)}')">${esc(t)}</button>`),
+  ].join('');
 }
 
 function onEditMealIngredientKeydown(e) {
@@ -326,6 +339,19 @@ function selectEditMealIngredient(id) {
   const d = getMealTemplates().find(d => d.id === id);
   if (!d) return;
   editMealIngredients.push({ id: d.id, name: d.name, components: _resolveAllIngredients(d) });
+  document.getElementById('edit-meal-ingredient-input').value = '';
+  _hideEditMealIngredientAutocomplete();
+  renderEditMealIngredientList();
+}
+
+function selectEditMealNameTerm(name) {
+  document.getElementById('edit-meal-name-input').value = name;
+  _hideEditMealAutocomplete();
+  document.getElementById('edit-meal-ingredient-input').focus();
+}
+
+function selectEditMealIngredientTerm(name) {
+  editMealIngredients.push({ id: null, name, components: [] });
   document.getElementById('edit-meal-ingredient-input').value = '';
   _hideEditMealIngredientAutocomplete();
   renderEditMealIngredientList();

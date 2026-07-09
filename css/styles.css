@@ -659,6 +659,20 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .meal-autocomplete-item:hover { background: var(--surface2); }
 .meal-autocomplete-sub { font-size: 12px; color: var(--text2); }
+.meal-autocomplete-term { color: var(--text2); font-style: italic; }
+
+/* ── Used terms list ── */
+.used-term-row {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface2); border-radius: var(--radius-sm);
+  padding: 8px 12px; margin-bottom: 6px;
+}
+.used-term-name { flex: 1; font-size: 15px; }
+.used-term-del {
+  background: none; border: none; color: var(--text2);
+  font-size: 18px; cursor: pointer; padding: 0 2px; line-height: 1;
+}
+.used-term-del:active { color: var(--danger); }
 
 .meal-rows { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
 .meal-row {

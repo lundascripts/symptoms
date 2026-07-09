@@ -9,6 +9,7 @@ if (!window._appInited) {
     switchTab('meal');
     renderHistory();
     renderMealFavoriteChips();
+    renderUsedTermsList();
     loadTodayNote();
     updateNotifStatus();
     scheduleReminders();

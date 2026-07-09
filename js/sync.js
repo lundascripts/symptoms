@@ -55,6 +55,7 @@ async function syncNow(opts = {}) {
     dayNotes: getDayNotes(),
     deletedIds: getDeletedIds(),
     mealTemplates: getMealTemplates(),
+    usedTerms: getUsedTerms(),
   };
 
   try {
@@ -87,6 +88,10 @@ async function syncNow(opts = {}) {
         if (typeof renderDishList === 'function') renderDishList();
       }
     }
+
+    // Merge incoming used terms
+    const incomingTerms = merged.usedTerms || [];
+    if (incomingTerms.length > 0) addUsedTerms(incomingTerms);
 
     const localIds = new Set(getEntries().map(e => e.id));
     const incoming = (merged.entries || []).filter(e => !localIds.has(e.id) && !remoteDeleted.has(e.id));

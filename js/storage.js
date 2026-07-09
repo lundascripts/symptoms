@@ -19,6 +19,20 @@ function getReminders() {
 }
 function saveReminders(r) { localStorage.setItem('tagebuch_reminders', JSON.stringify(r)); }
 
+function getUsedTerms() {
+  try { return JSON.parse(localStorage.getItem('tagebuch_used_terms') || '[]'); } catch { return []; }
+}
+function saveUsedTerms(t) { localStorage.setItem('tagebuch_used_terms', JSON.stringify(t)); }
+function addUsedTerms(names) {
+  const existing = new Set(getUsedTerms().map(s => s.toLowerCase()));
+  const dishNames = new Set(getMealTemplates().map(d => d.name.toLowerCase()));
+  const toAdd = names.filter(n => n && !existing.has(n.toLowerCase()) && !dishNames.has(n.toLowerCase()));
+  if (toAdd.length) {
+    saveUsedTerms([...getUsedTerms(), ...toAdd]);
+    if (typeof renderUsedTermsList === 'function') renderUsedTermsList();
+  }
+}
+
 function getDeletedIds() {
   try { return JSON.parse(localStorage.getItem('tagebuch_deleted_ids') || '[]'); } catch { return []; }
 }
