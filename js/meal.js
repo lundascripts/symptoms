@@ -314,7 +314,6 @@ function saveNewDish() {
   const name = document.getElementById('dish-new-name').value.trim();
   const text = document.getElementById('dish-new-text').value.trim();
   if (!name) { toast('Bitte einen Namen eingeben.'); return; }
-  if (!text && _newComponents.length === 0) { toast('Bitte Zutaten/Beschreibung oder Bestandteile angeben.'); return; }
   const dishs = getMealTemplates();
   if (dishs.some(d => d.name.toLowerCase() === name.toLowerCase())) { toast(`„${name}" gibt es bereits.`); return; }
   dishs.push({ id: Date.now(), name, text, components: _newComponents.map(c => c.id) });
@@ -353,7 +352,6 @@ function saveEditDish() {
   const name = document.getElementById('dish-edit-name').value.trim();
   const text = document.getElementById('dish-edit-text').value.trim();
   if (!name) { toast('Bitte einen Namen eingeben.'); return; }
-  if (!text && _editComponents.length === 0) { toast('Bitte Zutaten/Beschreibung oder Bestandteile angeben.'); return; }
   const dishs = getMealTemplates();
   const d = dishs.find(d => d.id === _editDishId);
   if (!d) return;
