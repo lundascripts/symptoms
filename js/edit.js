@@ -325,7 +325,7 @@ function _hideEditMealIngredientAutocomplete() {
 function selectEditMealIngredient(id) {
   const d = getMealTemplates().find(d => d.id === id);
   if (!d) return;
-  editMealIngredients.push({ id: d.id, name: d.name, components: _resolveComponentObjects(d) });
+  editMealIngredients.push({ id: d.id, name: d.name, components: _resolveAllIngredients(d) });
   document.getElementById('edit-meal-ingredient-input').value = '';
   _hideEditMealIngredientAutocomplete();
   renderEditMealIngredientList();
@@ -337,7 +337,7 @@ function _addEditMealIngredientFromInput() {
   _hideEditMealIngredientAutocomplete();
   const matched = getMealTemplates().find(d => d.name.toLowerCase() === val.toLowerCase());
   if (matched) {
-    editMealIngredients.push({ id: matched.id, name: matched.name, components: _resolveComponentObjects(matched) });
+    editMealIngredients.push({ id: matched.id, name: matched.name, components: _resolveAllIngredients(matched) });
   } else {
     editMealIngredients.push({ id: null, name: val, components: [] });
   }

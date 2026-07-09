@@ -115,7 +115,7 @@ function hideMealIngredientAutocomplete() {
 function selectMealIngredientAutocomplete(id) {
   const d = getMealTemplates().find(d => d.id === id);
   if (!d) return;
-  _pushIngredient({ id: d.id, name: d.name, components: _resolveComponentObjects(d) });
+  _pushIngredient({ id: d.id, name: d.name, components: _resolveAllIngredients(d) });
   document.getElementById('meal-ingredient-input').value = '';
   hideMealIngredientAutocomplete();
 }
@@ -126,7 +126,7 @@ function addMealIngredientFromInput() {
   hideMealIngredientAutocomplete();
   const matched = getMealTemplates().find(d => d.name.toLowerCase() === val.toLowerCase());
   if (matched) {
-    _pushIngredient({ id: matched.id, name: matched.name, components: _resolveComponentObjects(matched) });
+    _pushIngredient({ id: matched.id, name: matched.name, components: _resolveAllIngredients(matched) });
   } else {
     _pushIngredient({ id: null, name: val, components: [] });
   }
@@ -208,6 +208,13 @@ function _resolveComponentObjects(d) {
   if (!d.components || !d.components.length) return [];
   const all = getMealTemplates();
   return d.components.map(id => { const t = all.find(t => t.id === id); return t ? { id: t.id, name: t.name } : null; }).filter(Boolean);
+}
+
+function _resolveAllIngredients(d) {
+  const comps = _resolveComponentObjects(d);
+  if (comps.length) return comps;
+  if (d.text) return d.text.split(/[,\n]/).map(s => s.trim()).filter(Boolean).map(name => ({ id: null, name }));
+  return [];
 }
 
 // ── Favorite chips ──
