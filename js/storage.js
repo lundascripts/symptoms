@@ -33,6 +33,15 @@ function addUsedTerms(names) {
   }
 }
 
+function getDeletedMealTemplateIds() {
+  try { return JSON.parse(localStorage.getItem('tagebuch_deleted_meal_template_ids') || '[]'); } catch { return []; }
+}
+function addDeletedMealTemplateId(id) {
+  const ids = getDeletedMealTemplateIds();
+  if (!ids.includes(id)) { ids.push(id); localStorage.setItem('tagebuch_deleted_meal_template_ids', JSON.stringify(ids)); }
+}
+function saveDeletedMealTemplateIds(ids) { localStorage.setItem('tagebuch_deleted_meal_template_ids', JSON.stringify(ids)); }
+
 function getDeletedIds() {
   try { return JSON.parse(localStorage.getItem('tagebuch_deleted_ids') || '[]'); } catch { return []; }
 }

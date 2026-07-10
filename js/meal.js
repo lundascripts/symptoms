@@ -321,6 +321,7 @@ function renderDishList() {
 function deleteDish(id) {
   if (!confirm('Rezept löschen?')) return;
   saveMealTemplates(getMealTemplates().filter(r => r.id !== id));
+  addDeletedMealTemplateId(id);
   autoSync();
   renderDishList();
   renderMealFavoriteChips();

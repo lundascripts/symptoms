@@ -55,6 +55,7 @@ async function syncNow(opts = {}) {
     dayNotes: getDayNotes(),
     deletedIds: getDeletedIds(),
     mealTemplates: getMealTemplates(),
+    deletedMealTemplateIds: getDeletedMealTemplateIds(),
     usedTerms: getUsedTerms(),
   };
 
@@ -76,18 +77,23 @@ async function syncNow(opts = {}) {
       saveDeletedIds(mergedDeleted);
     }
 
-    // Merge incoming meal templates (ID-only dedup)
-    const incomingTemplates = merged.mealTemplates || [];
+    // Merge incoming meal templates + apply deletions
+    const mergedDeletedTemplateIds = new Set(merged.deletedMealTemplateIds || []);
+    if (mergedDeletedTemplateIds.size > 0) {
+      saveMealTemplates(getMealTemplates().filter(t => !mergedDeletedTemplateIds.has(t.id)));
+      saveDeletedMealTemplateIds([...new Set([...getDeletedMealTemplateIds(), ...mergedDeletedTemplateIds])]);
+    }
+    const incomingTemplates = (merged.mealTemplates || []).filter(t => !mergedDeletedTemplateIds.has(t.id));
     if (incomingTemplates.length > 0) {
       const localTemplates = getMealTemplates();
       const localTemplateIds = new Set(localTemplates.map(t => t.id));
       const newTemplates = incomingTemplates.filter(t => !localTemplateIds.has(t.id));
       if (newTemplates.length > 0) {
         saveMealTemplates([...localTemplates, ...newTemplates]);
-        renderMealFavoriteChips();
-        if (typeof renderDishList === 'function') renderDishList();
       }
     }
+    renderMealFavoriteChips();
+    if (typeof renderDishList === 'function') renderDishList();
 
     // Merge incoming used terms
     const incomingTerms = merged.usedTerms || [];
