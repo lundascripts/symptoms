@@ -51,7 +51,7 @@ function switchTab(tab) {
   if (tabBtn) tabBtn.classList.add('active-' + tab);
   if (tab === 'meal')    { setNow('meal-dt'); renderMealFavoriteChips(); }
   if (tab === 'symptom') setNow('symptom-dt');
-  if (tab === 'note')    loadTodayNote();
+  if (tab === 'note')    setTimeout(loadTodayNote, 0);
   if (tab === 'history') renderHistory();
   if (tab === 'mehr')    { updateNotifStatus(); renderReminderList(); renderSyncSection(); }
 }

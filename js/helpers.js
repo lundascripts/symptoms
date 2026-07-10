@@ -21,6 +21,11 @@ function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
+function formatDateDE(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
 function formatDay(dateStr) {
   const d = new Date(dateStr + 'T12:00:00');
   if (dateStr === todayStr()) return 'Heute';

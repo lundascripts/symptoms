@@ -84,6 +84,9 @@ main { flex: 1; padding: 16px; max-width: 600px; margin: 0 auto; width: 100%; }
 .meal-title    { color: var(--accent-meal); }
 .symptom-title { color: var(--accent-symptom); }
 .note-title    { color: var(--accent-note); }
+.note-header-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.note-header-row .card-title { margin-bottom: 0; }
+.note-header-row input[type="date"] { font-size: 14px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); }
 .mehr-title    { color: var(--text2); }
 
 .mehr-nav-cards {
