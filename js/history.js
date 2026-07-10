@@ -7,10 +7,50 @@ function setFilter(f) {
   renderHistory();
 }
 
+function toggleDatePicker() {
+  const picker = document.getElementById('history-date-picker');
+  const btn = document.getElementById('history-cal-btn');
+  const open = picker.style.display === 'none';
+  picker.style.display = open ? '' : 'none';
+  btn.classList.toggle('active', open);
+}
+
+function clearDateFilter() {
+  document.getElementById('filter-date-from').value = '';
+  document.getElementById('filter-date-to').value = '';
+  document.getElementById('history-date-picker').style.display = 'none';
+  document.getElementById('history-cal-btn').classList.remove('active');
+  renderHistory();
+}
+
+function _getDateFilter() {
+  const from = document.getElementById('filter-date-from')?.value || '';
+  const to   = document.getElementById('filter-date-to')?.value || '';
+  return { from, to };
+}
+
+function _getSearchQuery() {
+  return (document.getElementById('history-search')?.value || '').trim().toLowerCase();
+}
+
+function _entryMatchesSearch(e, q) {
+  if (!q) return true;
+  if (e.type === 'meal') {
+    return (e.food || '').toLowerCase().includes(q);
+  } else {
+    const symptomsText = (e.symptoms || []).map(s => s.name).join(' ').toLowerCase();
+    const desc = (e.description || '').toLowerCase();
+    const notes = (e.notes || '').toLowerCase();
+    return symptomsText.includes(q) || desc.includes(q) || notes.includes(q);
+  }
+}
+
 function renderHistory() {
   const list = document.getElementById('history-list');
   const dayNotes = getDayNotes();
   let entries = getEntries();
+  const { from, to } = _getDateFilter();
+  const q = _getSearchQuery();
 
   if (currentFilter === 'note') {
     entries = [];
@@ -18,11 +58,17 @@ function renderHistory() {
     entries = entries.filter(e => e.type === currentFilter);
   }
 
+  if (from) entries = entries.filter(e => e.datetime.split('T')[0] >= from);
+  if (to)   entries = entries.filter(e => e.datetime.split('T')[0] <= to);
+  if (q)    entries = entries.filter(e => _entryMatchesSearch(e, q));
+
   entries.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
 
   const allDays = new Set(entries.map(e => e.datetime.split('T')[0]));
-  if (currentFilter === 'all' || currentFilter === 'note') {
-    Object.keys(dayNotes).forEach(d => allDays.add(d));
+  if ((currentFilter === 'all' || currentFilter === 'note') && !q) {
+    Object.keys(dayNotes).forEach(d => {
+      if ((!from || d >= from) && (!to || d <= to)) allDays.add(d);
+    });
   }
   const days = [...allDays].sort((a, b) => b.localeCompare(a));
 

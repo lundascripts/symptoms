@@ -163,6 +163,17 @@
         <button class="filter-btn" data-filter="note"    onclick="setFilter('note')">Notizen</button>
         <button class="export-btn" onclick="openExport()">Daten ↓</button>
       </div>
+      <div class="history-search-row">
+        <div class="history-date-wrap">
+          <button class="history-cal-btn" onclick="toggleDatePicker()" id="history-cal-btn" title="Zeitraum filtern">📅</button>
+          <div id="history-date-picker" class="history-date-picker" style="display:none">
+            <label>Von <input type="date" id="filter-date-from" onchange="renderHistory()" /></label>
+            <label>Bis <input type="date" id="filter-date-to" onchange="renderHistory()" /></label>
+            <button class="history-date-clear" onclick="clearDateFilter()">×</button>
+          </div>
+        </div>
+        <input type="text" id="history-search" class="history-search-input" placeholder="Suchen…" oninput="renderHistory()" />
+      </div>
       <div id="history-list"></div>
     </div>
 
