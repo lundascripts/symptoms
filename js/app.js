@@ -6,6 +6,7 @@ if (!window._appInited) {
     buildEditBristolButtons();
     setNow('meal-dt');
     setNow('symptom-dt');
+    setNow('medication-dt');
     switchTab('meal');
     renderHistory();
     renderMealFavoriteChips();
@@ -19,7 +20,7 @@ if (!window._appInited) {
   });
 }
 
-const TABS = ['meal', 'symptom', 'note', 'history', 'mehr'];
+const TABS = ['meal', 'symptom', 'medication', 'note', 'history', 'mehr'];
 
 function currentTabIndex() {
   return TABS.findIndex(t => document.getElementById('view-' + t)?.classList.contains('active'));
@@ -49,9 +50,10 @@ function switchTab(tab) {
   document.getElementById('view-' + tab).classList.add('active');
   const tabBtn = document.querySelector(`[data-tab="${tab}"]`);
   if (tabBtn) tabBtn.classList.add('active-' + tab);
-  if (tab === 'meal')    { setNow('meal-dt'); renderMealFavoriteChips(); }
-  if (tab === 'symptom') setNow('symptom-dt');
-  if (tab === 'note')    setTimeout(loadTodayNote, 0);
+  if (tab === 'meal')       { setNow('meal-dt'); renderMealFavoriteChips(); }
+  if (tab === 'symptom')    setNow('symptom-dt');
+  if (tab === 'medication') setNow('medication-dt');
+  if (tab === 'note')       setTimeout(loadTodayNote, 0);
   if (tab === 'history') renderHistory();
   if (tab === 'mehr')    { updateNotifStatus(); renderReminderList(); renderSyncSection(); }
 }

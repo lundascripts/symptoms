@@ -11,6 +11,8 @@
   --accent-symptom-light: #f5ede6;
   --accent-note: #5b5bd6;
   --accent-note-light: #eeeefc;
+  --accent-medication: #2a7f8f;
+  --accent-medication-light: #e4f4f6;
   --danger: #c0392b;
   --radius: 12px;
   --radius-sm: 8px;
@@ -57,7 +59,8 @@ header h1 { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
 .tab-btn.active-meal    { color: var(--accent-meal);    border-bottom-color: var(--accent-meal); }
 .tab-btn.active-symptom { color: var(--accent-symptom); border-bottom-color: var(--accent-symptom); }
 .tab-btn.active-history { color: var(--text);           border-bottom-color: var(--text); }
-.tab-btn.active-note    { color: var(--accent-note);    border-bottom-color: var(--accent-note); }
+.tab-btn.active-note       { color: var(--accent-note);       border-bottom-color: var(--accent-note); }
+.tab-btn.active-medication { color: var(--accent-medication); border-bottom-color: var(--accent-medication); }
 .tab-btn.active-mehr    { color: var(--text2);          border-bottom-color: var(--text2); }
 
 main { flex: 1; padding: 16px; max-width: 600px; margin: 0 auto; width: 100%; }
@@ -83,7 +86,8 @@ main { flex: 1; padding: 16px; max-width: 600px; margin: 0 auto; width: 100%; }
 }
 .meal-title    { color: var(--accent-meal); }
 .symptom-title { color: var(--accent-symptom); }
-.note-title    { color: var(--accent-note); }
+.note-title       { color: var(--accent-note); }
+.medication-title { color: var(--accent-medication); }
 .note-header-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
 .note-header-row .card-title { margin-bottom: 0; }
 .note-header-row input[type="date"] { font-size: 14px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); }
@@ -263,7 +267,8 @@ input[type="range"]::-webkit-slider-thumb {
 .btn-save:active { opacity: 0.8; }
 .btn-meal    { background: var(--accent-meal); color: #fff; }
 .btn-symptom { background: var(--accent-symptom); color: #fff; }
-.btn-note    { background: var(--accent-note); color: #fff; }
+.btn-note       { background: var(--accent-note);       color: #fff; }
+.btn-medication { background: var(--accent-medication); color: #fff; }
 .btn-sync    { background: #2980b9; color: #fff; }
 
 .btn-secondary {
@@ -359,14 +364,16 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .entry-card.meal-card    { border-left: 3px solid var(--accent-meal); }
 .entry-card.symptom-card { border-left: 3px solid var(--accent-symptom); }
-.entry-card.note-card    { border-left: 3px solid var(--accent-note); background: var(--accent-note-light); }
+.entry-card.note-card       { border-left: 3px solid var(--accent-note);       background: var(--accent-note-light); }
+.entry-card.medication-card { border-left: 3px solid var(--accent-medication); }
 
 .entry-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
 
 .entry-type { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
 .entry-type.meal    { color: var(--accent-meal); }
 .entry-type.symptom { color: var(--accent-symptom); }
-.entry-type.note    { color: var(--accent-note); }
+.entry-type.note       { color: var(--accent-note); }
+.entry-type.medication { color: var(--accent-medication); }
 
 .entry-time { font-size: 12px; color: var(--text2); }
 
@@ -442,7 +449,9 @@ input[type="range"]::-webkit-slider-thumb {
   transition: all 0.12s; white-space: nowrap;
 }
 .quick-chip:active { opacity: 0.7; }
-.quick-chip.chip-symptom:active { background: var(--accent-symptom-light); border-color: var(--accent-symptom); color: var(--accent-symptom); }
+.quick-chip.chip-symptom:active    { background: var(--accent-symptom-light);    border-color: var(--accent-symptom);    color: var(--accent-symptom); }
+.quick-chip.chip-medication:active { background: var(--accent-medication-light); border-color: var(--accent-medication); color: var(--accent-medication); }
+.medication-dose-input { flex: 1; font-size: 13px; padding: 4px 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); min-width: 0; }
 .quick-chip.chip-meal  { background: var(--surface2); }
 .quick-chip.chip-meal:active { background: var(--accent-meal-light); border-color: var(--accent-meal); }
 .quick-chip.chip-fav   { background: var(--accent-meal-light); border-color: var(--accent-meal); color: var(--accent-meal); }

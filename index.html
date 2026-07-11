@@ -13,11 +13,12 @@
   <header>
     <h1>Tagebuch</h1>
     <div class="tabs">
-      <button class="tab-btn" data-tab="meal"    onclick="switchTab('meal')">🍽 Mahlzeit</button>
-      <button class="tab-btn" data-tab="symptom" onclick="switchTab('symptom')">📋 Symptom</button>
-      <button class="tab-btn" data-tab="note"    onclick="switchTab('note')">📝 Tagesnotiz</button>
-      <button class="tab-btn" data-tab="history" onclick="switchTab('history')">📅 Verlauf</button>
-      <button class="tab-btn" data-tab="mehr"    onclick="switchTab('mehr')">⚙ Mehr</button>
+      <button class="tab-btn" data-tab="meal"       onclick="switchTab('meal')">🍽 Mahlzeit</button>
+      <button class="tab-btn" data-tab="symptom"    onclick="switchTab('symptom')">📋 Symptom</button>
+      <button class="tab-btn" data-tab="medication" onclick="switchTab('medication')">💊 Medikament</button>
+      <button class="tab-btn" data-tab="note"       onclick="switchTab('note')">📝 Tagesnotiz</button>
+      <button class="tab-btn" data-tab="history"    onclick="switchTab('history')">📅 Verlauf</button>
+      <button class="tab-btn" data-tab="mehr"       onclick="switchTab('mehr')">⚙ Mehr</button>
     </div>
   </header>
 
@@ -157,13 +158,55 @@
       </div>
     </div>
 
+    <!-- ── Medikament ── -->
+    <div id="view-medication" class="view">
+      <div class="card">
+        <div class="card-title medication-title">Medikament erfassen</div>
+
+        <div class="field">
+          <label>Datum & Uhrzeit</label>
+          <button class="dt-trigger" id="medication-dt-display" onclick="openDtPicker('medication-dt')">–</button>
+          <input type="hidden" id="medication-dt" />
+        </div>
+
+        <div class="field">
+          <label>Schnellauswahl</label>
+          <div class="quick-chips">
+            <button class="quick-chip chip-medication" onclick="addMedicationChip('Iberogast')">Iberogast</button>
+            <button class="quick-chip chip-medication" onclick="addMedicationChip('Ibuprofen')">Ibuprofen</button>
+            <button class="quick-chip chip-medication" onclick="addMedicationChip('Lactase')">Lactase</button>
+            <button class="quick-chip chip-medication" onclick="addMedicationChip('Lefax')">Lefax</button>
+            <button class="quick-chip chip-medication" onclick="addMedicationChip('Paracetamol')">Paracetamol</button>
+            <button class="quick-chip chip-medication" onclick="addMedicationChip('Perenterol')">Perenterol</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Medikamente</label>
+          <div id="medication-list"></div>
+          <div class="symptom-add-row">
+            <input type="text" id="medication-custom-input" placeholder="Weiteres Medikament…"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();addMedicationCustom();}" />
+            <button class="symptom-add-btn" onclick="addMedicationCustom()">+</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Notizen (optional)</label>
+          <input type="text" id="medication-notes" placeholder="z.B. mit Wasser, nüchtern" />
+        </div>
+
+        <button class="btn-save btn-medication" onclick="saveMedication()">Medikament speichern</button>
+      </div>
+    </div>
+
     <!-- ── Verlauf ── -->
     <div id="view-history" class="view">
       <div class="history-controls">
-        <button class="filter-btn" data-filter="all"     onclick="setFilter('all')">Alle</button>
-        <button class="filter-btn" data-filter="meal"    onclick="setFilter('meal')">Mahlzeiten</button>
-        <button class="filter-btn" data-filter="symptom" onclick="setFilter('symptom')">Symptome</button>
-        <button class="filter-btn" data-filter="note"    onclick="setFilter('note')">Notizen</button>
+        <button class="filter-btn" data-filter="all"        onclick="setFilter('all')">Alle</button>
+        <button class="filter-btn" data-filter="meal"       onclick="setFilter('meal')">Mahlzeiten</button>
+        <button class="filter-btn" data-filter="symptom"    onclick="setFilter('symptom')">Symptome</button>
+        <button class="filter-btn" data-filter="medication" onclick="setFilter('medication')">Medikamente</button>
         <button class="export-btn" onclick="openExport()">Daten ↓</button>
       </div>
       <div class="history-search-row">
@@ -463,6 +506,7 @@
 <script src="js/history.js?v=5"></script>
 <script src="js/reminders.js?v=4"></script>
 <script src="js/sync.js?v=6"></script>
-<script src="js/app.js?v=5"></script>
+<script src="js/medication.js?v=1"></script>
+<script src="js/app.js?v=6"></script>
 </body>
 </html>

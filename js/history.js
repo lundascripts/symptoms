@@ -37,6 +37,9 @@ function _entryMatchesSearch(e, q) {
   if (!q) return true;
   if (e.type === 'meal') {
     return (e.food || '').toLowerCase().includes(q);
+  } else if (e.type === 'medication') {
+    const medText = (e.medications || []).map(m => m.name + ' ' + (m.dose || '')).join(' ').toLowerCase();
+    return medText.includes(q) || (e.notes || '').toLowerCase().includes(q);
   } else {
     const symptomsText = (e.symptoms || []).map(s => s.name).join(' ').toLowerCase();
     const desc = (e.description || '').toLowerCase();
@@ -54,7 +57,7 @@ function renderHistory() {
 
   if (currentFilter === 'note') {
     entries = [];
-  } else if (currentFilter !== 'all') {
+  } else if (currentFilter !== 'all' && currentFilter !== 'note') {
     entries = entries.filter(e => e.type === currentFilter);
   }
 
@@ -65,7 +68,7 @@ function renderHistory() {
   entries.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
 
   const allDays = new Set(entries.map(e => e.datetime.split('T')[0]));
-  if ((currentFilter === 'all' || currentFilter === 'note') && !q) {
+  if (currentFilter === 'all' && !q) {
     Object.keys(dayNotes).forEach(d => {
       if ((!from || d >= from) && (!to || d <= to)) allDays.add(d);
     });
@@ -81,9 +84,10 @@ function renderHistory() {
 
   list.innerHTML = days.map(day => {
     const dayEntries = entries.filter(e => e.datetime.split('T')[0] === day);
-    const note = (currentFilter === 'all' || currentFilter === 'note') ? dayNotes[day] : null;
+    const note = currentFilter === 'all' ? dayNotes[day] : null;
 
     if (currentFilter === 'note' && !note) return '';
+
 
     const noteCard = note ? `
       <div class="entry-card note-card">
@@ -102,6 +106,20 @@ function renderHistory() {
             <div style="display:flex;align-items:center;gap:8px">
               <div class="entry-time">${formatTime(e.datetime)}</div>
               <button class="edit-btn" onclick="openEditModal(${e.id})" title="Bearbeiten">✏</button>
+              <button class="delete-btn" onclick="deleteEntry(${e.id})">×</button>
+            </div>
+          </div>
+          ${e.notes ? `<div class="entry-notes">${esc(e.notes)}</div>` : ''}
+        </div>`;
+      } else if (e.type === 'medication') {
+        const mainLabel = (e.medications || [])
+          .map(m => m.dose ? `${esc(m.name)} <strong>(${esc(m.dose)})</strong>` : esc(m.name))
+          .join(', ');
+        return `<div class="entry-card medication-card">
+          <div class="entry-header">
+            <div><div class="entry-type medication">Medikament</div><div class="entry-main">${mainLabel}</div></div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="entry-time">${formatTime(e.datetime)}</div>
               <button class="delete-btn" onclick="deleteEntry(${e.id})">×</button>
             </div>
           </div>
@@ -181,10 +199,11 @@ function exportCSV() {
     const d = new Date(e.datetime);
     rows.push([
       e.id,
-      e.type === 'meal' ? 'Mahlzeit' : 'Symptom',
+      e.type === 'meal' ? 'Mahlzeit' : e.type === 'medication' ? 'Medikament' : 'Symptom',
       d.toLocaleDateString('de-DE'),
       d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
       e.type === 'meal' ? (e.food || '') :
+        e.type === 'medication' ? (e.medications || []).map(m => m.dose ? `${m.name} (${m.dose})` : m.name).join(', ') :
         (e.symptoms ? e.symptoms.map(s => s.name).join(', ') : (e.description || '')),
       e.type === 'symptom'
         ? (e.symptoms ? e.symptoms.map(s => `${s.name}:${s.severity}`).join('; ') : e.severity)
