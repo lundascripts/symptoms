@@ -21,7 +21,7 @@ function buildBristolButtons() {
     const btn = document.createElement('button');
     btn.className = 'bristol-btn';
     btn.dataset.n = b.n;
-    btn.innerHTML = `<span class="bnum">${b.n}</span><span class="blabel">${b.short}</span>`;
+    btn.innerHTML = `<span class="bnum">${b.n}</span>`;
     btn.onclick = () => selectBristol(b.n);
     (b.n <= 4 ? top : bot).appendChild(btn);
   });
