@@ -23,7 +23,7 @@ function buildBristolButtons() {
     btn.dataset.n = b.n;
     btn.innerHTML = `<span class="bnum">${b.n}</span>`;
     btn.onclick = () => selectBristol(b.n);
-    (b.n <= 4 ? top : bot).appendChild(btn);
+    top.appendChild(btn);
   });
 }
 
