@@ -1,5 +1,12 @@
 // ── Custom Datetime Picker ──
 
+function localIso(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 let _dtTargetId = null;   // hidden input id to write to
 let _dtWeekOffset = 0;    // weeks relative to current week
 let _dtSelectedDate = ''; // YYYY-MM-DD
@@ -12,7 +19,7 @@ function openDtPicker(targetId) {
   const now = existing ? new Date(existing) : new Date();
   _dtHour = now.getHours();
   _dtMinute = Math.round(now.getMinutes() / 5) * 5 % 60;
-  _dtSelectedDate = now.toISOString().split('T')[0];
+  _dtSelectedDate = localIso(now);
   _dtWeekOffset = 0;
 
   // Find week offset for existing date
@@ -52,8 +59,8 @@ function renderDtWeek() {
   for (let i = 0; i < 7; i++) {
     const d = new Date(monday);
     d.setDate(monday.getDate() + i);
-    const iso = d.toISOString().split('T')[0];
-    const isToday = iso === today.toISOString().split('T')[0];
+    const iso = localIso(d);
+    const isToday = iso === localIso(today);
     const isSelected = iso === _dtSelectedDate;
     const isFuture = d > today;
     html += `<button class="dt-day-btn${isSelected ? ' selected' : ''}${isToday ? ' today' : ''}${isFuture ? ' future' : ''}"
