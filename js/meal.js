@@ -205,6 +205,7 @@ function renderMealRows() {
       <div class="meal-row-info">
         <span class="meal-row-name">${esc(row.label)}</span>
       </div>
+      <button class="meal-row-edit" onclick="editMealRow(${i})" title="Bearbeiten">✎</button>
       <button class="meal-row-del" onclick="removeMealRow(${i})">×</button>
     </div>
   `).join('');
@@ -213,6 +214,16 @@ function renderMealRows() {
 function removeMealRow(i) {
   mealRows.splice(i, 1);
   renderMealRows();
+}
+
+function editMealRow(i) {
+  const row = mealRows[i];
+  mealRows.splice(i, 1);
+  renderMealRows();
+  document.getElementById('meal-food-input').value = row.name;
+  mealEntryIngredients = row.ingredients.slice();
+  renderMealIngredientList();
+  document.getElementById('meal-food-input').focus();
 }
 
 function clearMealRows() {

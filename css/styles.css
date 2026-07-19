@@ -63,6 +63,11 @@ header h1 { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
 .tab-btn.active-medication { color: var(--accent-medication); border-bottom-color: var(--accent-medication); }
 .tab-btn.active-mehr    { color: var(--text2);          border-bottom-color: var(--text2); }
 
+@media (max-width: 480px) {
+  .tab-label { display: none; }
+  .tab-icon { font-size: 18px; }
+}
+
 main { flex: 1; padding: 16px; max-width: 600px; margin: 0 auto; width: 100%; }
 
 .view { display: none; }
@@ -191,7 +196,14 @@ input[type="range"]::-webkit-slider-thumb {
   display: flex; align-items: center; gap: 10px;
 }
 
-.symptom-row-slider { flex: 1; }
+.severity-btn {
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); border-radius: 6px;
+  width: 36px; height: 36px; font-size: 20px; font-weight: 700;
+  cursor: pointer; flex-shrink: 0; line-height: 1;
+}
+.severity-btn:active { background: var(--border); }
+.severity-btn:disabled { opacity: 0.3; cursor: default; }
 
 .symptom-row-val {
   font-size: 18px; font-weight: 700;
@@ -758,6 +770,11 @@ input[type="range"]::-webkit-slider-thumb {
   font-size: 18px; cursor: pointer; flex-shrink: 0; padding: 2px 6px;
 }
 .meal-row-del:active { color: var(--danger); }
+.meal-row-edit {
+  background: none; border: none; color: var(--text2);
+  font-size: 16px; cursor: pointer; flex-shrink: 0; padding: 2px 6px;
+}
+.meal-row-edit:active { color: var(--accent-meal); }
 
 /* ── Dish component chips ── */
 .dish-component-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }

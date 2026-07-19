@@ -49,10 +49,9 @@ function renderSymptomRows() {
     <div class="symptom-row" data-index="${i}">
       <div class="symptom-row-name">${esc(row.name)}</div>
       <div class="symptom-row-controls">
-        <input type="range" min="0" max="10" value="${row.severity}"
-          oninput="updateSymptomSeverity(${i}, this.value)"
-          class="symptom-row-slider" />
+        <button class="severity-btn" onclick="updateSymptomSeverity(${i}, ${Math.max(0, row.severity - 1)})" ${row.severity <= 0 ? 'disabled' : ''}>−</button>
         <div class="symptom-row-val">${row.severity} <span class="severity-label">${severityLabel(row.severity)}</span></div>
+        <button class="severity-btn" onclick="updateSymptomSeverity(${i}, ${Math.min(10, row.severity + 1)})" ${row.severity >= 10 ? 'disabled' : ''}>+</button>
         <button class="symptom-row-del" onclick="removeSymptomRow(${i})">×</button>
       </div>
     </div>
@@ -87,9 +86,7 @@ function addSymptomCustom() {
 
 function updateSymptomSeverity(index, value) {
   symptomRows[index].severity = parseInt(value);
-  // Update display value next to slider
-  const row = document.querySelectorAll('.symptom-row')[index];
-  if (row) row.querySelector('.symptom-row-val').innerHTML = `${value} <span class="severity-label">${severityLabel(value)}</span>`;
+  renderSymptomRows();
 }
 
 function removeSymptomRow(index) {
