@@ -1,14 +1,46 @@
-let reminderTimers = [];
+let _swReg = null;
+
+async function initServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+  try {
+    const swUrl = new URL('sw.js', document.baseURI).href;
+    _swReg = await navigator.serviceWorker.register(swUrl);
+    await navigator.serviceWorker.ready;
+    sendTimesToSW();
+  } catch (e) {
+    console.warn('SW registration failed:', e);
+  }
+}
+
+function sendTimesToSW() {
+  const times = getReminders();
+  if (!navigator.serviceWorker.controller) return;
+  navigator.serviceWorker.controller.postMessage({ type: 'SCHEDULE_REMINDERS', times });
+}
 
 function updateNotifStatus() {
   const dot = document.getElementById('notif-dot');
   const txt = document.getElementById('notif-status-text');
   const btn = document.getElementById('perm-btn');
+  const iosHint = document.getElementById('ios-hint');
+
+  // iOS Safari ohne PWA: Notification API nicht verfügbar
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone === true;
+
   if (!('Notification' in window)) {
     dot.className = 'notif-dot';
-    txt.textContent = 'Benachrichtigungen nicht unterstützt';
+    if (isIOS && !isStandalone) {
+      txt.textContent = 'Erinnerungen auf iOS nur als Homescreen-App verfügbar';
+      if (iosHint) iosHint.style.display = '';
+    } else {
+      txt.textContent = 'Benachrichtigungen nicht unterstützt';
+    }
+    btn.style.display = 'none';
     return;
   }
+
+  if (iosHint) iosHint.style.display = 'none';
   const perm = Notification.permission;
   dot.className = 'notif-dot ' + (perm === 'granted' ? 'granted' : perm === 'denied' ? 'denied' : '');
   txt.textContent = perm === 'granted' ? 'Benachrichtigungen aktiv'
@@ -21,8 +53,12 @@ async function requestNotifPermission() {
   if (!('Notification' in window)) { toast('Nicht unterstützt'); return; }
   const perm = await Notification.requestPermission();
   updateNotifStatus();
-  if (perm === 'granted') { scheduleReminders(); toast('Erinnerungen aktiviert ✓'); }
-  else toast('Berechtigung verweigert');
+  if (perm === 'granted') {
+    await initServiceWorker();
+    toast('Erinnerungen aktiviert ✓');
+  } else {
+    toast('Berechtigung verweigert');
+  }
 }
 
 function renderReminderList() {
@@ -46,31 +82,17 @@ function addReminder() {
   saveReminders(times);
   document.getElementById('reminder-time-input').value = '';
   renderReminderList();
-  scheduleReminders();
+  sendTimesToSW();
   toast(`Erinnerung um ${val} Uhr gesetzt ✓`);
 }
 
 function removeReminder(t) {
   saveReminders(getReminders().filter(r => r !== t));
   renderReminderList();
-  scheduleReminders();
+  sendTimesToSW();
 }
 
-function scheduleReminders() {
-  reminderTimers.forEach(clearTimeout);
-  reminderTimers = [];
-  if (!('Notification' in window) || Notification.permission !== 'granted') return;
-  const times = getReminders();
-  const now = new Date();
-  times.forEach(t => {
-    const [h, m] = t.split(':').map(Number);
-    const fire = new Date(now);
-    fire.setHours(h, m, 0, 0);
-    if (fire <= now) fire.setDate(fire.getDate() + 1);
-    const ms = fire - now;
-    reminderTimers.push(setTimeout(() => {
-      new Notification('Tagebuch', { body: 'Zeit zum Eintragen! 📋' });
-      scheduleReminders();
-    }, ms));
-  });
+// Beim Laden: SW registrieren falls Berechtigung bereits erteilt
+if ('Notification' in window && Notification.permission === 'granted') {
+  initServiceWorker();
 }
