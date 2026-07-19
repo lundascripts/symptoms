@@ -113,13 +113,14 @@ function renderHistory() {
         </div>`;
       } else if (e.type === 'medication') {
         const mainLabel = (e.medications || [])
-          .map(m => m.dose ? `${esc(m.name)} <strong>(${esc(m.dose)})</strong>` : esc(m.name))
+          .map(m => m.dose ? `${esc(m.name)} (${esc(m.dose)})` : esc(m.name))
           .join(', ');
         return `<div class="entry-card medication-card">
           <div class="entry-header">
             <div><div class="entry-type medication">Medikament</div><div class="entry-main">${mainLabel}</div></div>
             <div style="display:flex;align-items:center;gap:8px">
               <div class="entry-time">${formatTime(e.datetime)}</div>
+              <button class="edit-btn" onclick="openEditModal(${e.id})">✎</button>
               <button class="delete-btn" onclick="deleteEntry(${e.id})">×</button>
             </div>
           </div>

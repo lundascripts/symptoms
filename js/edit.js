@@ -2,6 +2,7 @@ let editEntryId = null;
 let editSymptomRows = [];
 let editSelectedBristol = null;
 let editSelectedMood = null;
+let editMedicationRows = []; // [{name, dose}]
 
 // ── Edit meal state ──
 let editMealRows = [];         // [{name, ingredients, label}]
@@ -30,8 +31,10 @@ function openEditModal(id) {
   document.getElementById('edit-dt').value = entry.datetime;
 
   const isMeal = entry.type === 'meal';
+  const isMedication = entry.type === 'medication';
   document.getElementById('edit-meal-section').style.display = isMeal ? '' : 'none';
-  document.getElementById('edit-symptom-section').style.display = isMeal ? 'none' : '';
+  document.getElementById('edit-symptom-section').style.display = (!isMeal && !isMedication) ? '' : 'none';
+  document.getElementById('edit-medication-section').style.display = isMedication ? '' : 'none';
   document.getElementById('edit-save-as-dish-btn').style.display = isMeal ? '' : 'none';
 
   if (isMeal) {
@@ -65,6 +68,13 @@ function openEditModal(id) {
 
     document.getElementById('edit-symptom-notes').value = entry.notes || '';
     document.getElementById('edit-symptom-custom-input').value = '';
+  }
+
+  if (isMedication) {
+    editMedicationRows = (entry.medications || []).map(m => ({ name: m.name, dose: m.dose || '' }));
+    renderEditMedicationRows();
+    document.getElementById('edit-medication-notes').value = entry.notes || '';
+    document.getElementById('edit-medication-custom-input').value = '';
   }
 
   document.getElementById('edit-modal').classList.add('open');
@@ -166,7 +176,11 @@ function saveEdit() {
   const entry = entries[idx];
   entry.datetime = document.getElementById('edit-dt').value;
 
-  if (entry.type === 'meal') {
+  if (entry.type === 'medication') {
+    if (editMedicationRows.length === 0) { toast('Bitte mindestens ein Medikament angeben.'); return; }
+    entry.medications = editMedicationRows.map(r => ({ name: r.name, dose: r.dose.trim() || null }));
+    entry.notes = document.getElementById('edit-medication-notes').value.trim() || null;
+  } else if (entry.type === 'meal') {
     if (editMealRows.length === 0) { toast('Bitte mindestens einen Eintrag übernehmen.'); return; }
     entry.food = editMealRows.map(r => r.label).join('\n');
     entry.notes = document.getElementById('edit-meal-notes').value.trim() || null;
@@ -198,6 +212,41 @@ function saveEditMealAsDish() {
   document.getElementById('dish-new-form').style.display = 'block';
   document.getElementById('dish-new-name').value = name;
   document.getElementById('dish-new-name').focus();
+}
+
+// ── Edit medication rows ──
+
+function renderEditMedicationRows() {
+  const container = document.getElementById('edit-medication-list');
+  if (!container) return;
+  container.innerHTML = editMedicationRows.map((row, i) => `
+    <div class="symptom-row" data-index="${i}">
+      <div class="symptom-row-name">${esc(row.name)}</div>
+      <div class="symptom-row-controls">
+        <input type="text" placeholder="Dosis (optional)" value="${esc(row.dose || '')}"
+          oninput="editMedicationRows[${i}].dose = this.value"
+          class="medication-dose-input" />
+        <button class="symptom-row-del" onclick="removeEditMedicationRow(${i})">×</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function removeEditMedicationRow(i) {
+  editMedicationRows.splice(i, 1);
+  renderEditMedicationRows();
+}
+
+function addEditMedicationCustom() {
+  const input = document.getElementById('edit-medication-custom-input');
+  const name = input.value.trim();
+  if (!name) return;
+  if (editMedicationRows.findIndex(r => r.name.toLowerCase() === name.toLowerCase()) !== -1) {
+    toast('Dieses Medikament ist bereits in der Liste.'); return;
+  }
+  editMedicationRows.push({ name, dose: '' });
+  input.value = '';
+  renderEditMedicationRows();
 }
 
 // ── Edit meal rows ──
