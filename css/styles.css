@@ -464,6 +464,21 @@ input[type="range"]::-webkit-slider-thumb {
 .quick-chip.chip-symptom:active    { background: var(--accent-symptom-light);    border-color: var(--accent-symptom);    color: var(--accent-symptom); }
 .quick-chip.chip-medication:active { background: var(--accent-medication-light); border-color: var(--accent-medication); color: var(--accent-medication); }
 .medication-dose-input { flex: 1; font-size: 13px; padding: 4px 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); min-width: 0; }
+
+.med-chip-wrap { position: relative; display: inline-flex; align-items: center; }
+.med-chip-del {
+  position: absolute; top: -4px; right: -4px;
+  background: var(--text2); color: var(--bg);
+  border: none; border-radius: 50%; width: 16px; height: 16px;
+  font-size: 10px; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.med-add-fav {
+  font-size: 11px; color: var(--accent-medication); background: none;
+  border: 1px solid var(--accent-medication); border-radius: 10px;
+  padding: 1px 7px; cursor: pointer; margin-left: 6px; vertical-align: middle;
+}
+.med-add-fav:active { background: var(--accent-medication-light); }
 .quick-chip.chip-meal  { background: var(--surface2); }
 .quick-chip.chip-meal:active { background: var(--accent-meal-light); border-color: var(--accent-meal); }
 .quick-chip.chip-fav   { background: var(--accent-meal-light); border-color: var(--accent-meal); color: var(--accent-meal); }

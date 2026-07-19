@@ -14,6 +14,11 @@ function getMealTemplates() {
 }
 function saveMealTemplates(t) { localStorage.setItem('tagebuch_meal_templates', JSON.stringify(t)); }
 
+function getMedFavorites() {
+  try { return JSON.parse(localStorage.getItem('tagebuch_med_favorites') || '[]'); } catch { return []; }
+}
+function saveMedFavorites(f) { localStorage.setItem('tagebuch_med_favorites', JSON.stringify(f)); }
+
 function getReminders() {
   try { return JSON.parse(localStorage.getItem('tagebuch_reminders') || '[]'); } catch { return []; }
 }

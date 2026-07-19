@@ -10,6 +10,7 @@ if (!window._appInited) {
     switchTab('meal');
     renderHistory();
     renderMealFavoriteChips();
+    renderMedicationChips();
     renderUsedTermsList();
     loadTodayNote();
     updateNotifStatus();
