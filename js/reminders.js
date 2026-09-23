@@ -177,6 +177,14 @@ async function removeReminder(t) {
   }
 }
 
+function scheduleReminders() {
+  if (isCapacitor()) {
+    getNativePermissionStatus().then(p => { if (p === 'granted') scheduleNativeReminders(); });
+  } else if ('Notification' in window && Notification.permission === 'granted') {
+    sendTimesToSW();
+  }
+}
+
 // Beim Laden initialisieren
 if (isCapacitor()) {
   updateNotifStatus();
