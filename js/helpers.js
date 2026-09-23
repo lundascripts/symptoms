@@ -66,6 +66,12 @@ function toast(msg) {
   setTimeout(() => el.classList.remove('show'), 2500);
 }
 
+function toastHtml(html, duration = 4000) {
+  const el = document.getElementById('toast');
+  el.innerHTML = html; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), duration);
+}
+
 function download(blob, filename) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');

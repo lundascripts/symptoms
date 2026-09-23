@@ -73,6 +73,7 @@ function openEditModal(id) {
   if (isMedication) {
     editMedicationRows = (entry.medications || []).map(m => ({ name: m.name, dose: m.dose || '' }));
     renderEditMedicationRows();
+    renderEditMedicationChips();
     document.getElementById('edit-medication-notes').value = entry.notes || '';
     document.getElementById('edit-medication-custom-input').value = '';
   }
@@ -92,10 +93,9 @@ function renderEditSymptomRows() {
     <div class="symptom-row" data-index="${i}">
       <div class="symptom-row-name">${esc(row.name)}</div>
       <div class="symptom-row-controls">
-        <input type="range" min="0" max="10" value="${row.severity}"
-          oninput="updateEditSymptomSeverity(${i}, this.value)"
-          class="symptom-row-slider" />
+        <button class="severity-btn" onclick="updateEditSymptomSeverity(${i}, ${Math.max(0, row.severity - 1)})" ${row.severity <= 0 ? 'disabled' : ''}>−</button>
         <div class="symptom-row-val">${row.severity} <span class="severity-label">${severityLabel(row.severity)}</span></div>
+        <button class="severity-btn" onclick="updateEditSymptomSeverity(${i}, ${Math.min(10, row.severity + 1)})" ${row.severity >= 10 ? 'disabled' : ''}>+</button>
         <button class="symptom-row-del" onclick="removeEditSymptomRow(${i})">×</button>
       </div>
     </div>
@@ -104,8 +104,7 @@ function renderEditSymptomRows() {
 
 function updateEditSymptomSeverity(index, value) {
   editSymptomRows[index].severity = parseInt(value);
-  const rows = document.querySelectorAll('#edit-symptom-list .symptom-row');
-  if (rows[index]) rows[index].querySelector('.symptom-row-val').innerHTML = `${value} <span class="severity-label">${severityLabel(value)}</span>`;
+  renderEditSymptomRows();
 }
 
 function removeEditSymptomRow(index) {
@@ -215,6 +214,25 @@ function saveEditMealAsDish() {
 }
 
 // ── Edit medication rows ──
+
+function renderEditMedicationChips() {
+  const container = document.getElementById('edit-medication-chips');
+  if (!container) return;
+  const favs = getMedFavorites();
+  const all = [...MED_DEFAULTS, ...favs.filter(f => !MED_DEFAULTS.some(d => d.toLowerCase() === f.toLowerCase()))];
+  all.sort((a, b) => a.localeCompare(b, 'de'));
+  container.innerHTML = all.map(name =>
+    `<button class="quick-chip chip-medication" onclick="addEditMedicationChip('${esc(name)}')">${esc(name)}</button>`
+  ).join('');
+}
+
+function addEditMedicationChip(name) {
+  if (editMedicationRows.findIndex(r => r.name.toLowerCase() === name.toLowerCase()) !== -1) {
+    toast('Dieses Medikament ist bereits in der Liste.'); return;
+  }
+  editMedicationRows.push({ name, dose: '' });
+  renderEditMedicationRows();
+}
 
 function renderEditMedicationRows() {
   const container = document.getElementById('edit-medication-list');

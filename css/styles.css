@@ -311,6 +311,7 @@ input[type="range"]::-webkit-slider-thumb {
   z-index: 200; white-space: nowrap;
 }
 #toast.show { transform: translateX(-50%) translateY(0); }
+.toast-undo { background: none; border: 1px solid rgba(255,255,255,0.5); color: #fff; border-radius: 12px; padding: 2px 10px; margin-left: 10px; font-size: 13px; cursor: pointer; }
 
 /* ── History ── */
 .history-controls { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }

@@ -51,9 +51,9 @@ function switchTab(tab) {
   document.getElementById('view-' + tab).classList.add('active');
   const tabBtn = document.querySelector(`[data-tab="${tab}"]`);
   if (tabBtn) tabBtn.classList.add('active-' + tab);
-  if (tab === 'meal')       { setNow('meal-dt'); renderMealFavoriteChips(); }
-  if (tab === 'symptom')    setNow('symptom-dt');
-  if (tab === 'medication') setNow('medication-dt');
+  if (tab === 'meal')       { if (!document.getElementById('meal-dt').value) setNow('meal-dt'); renderMealFavoriteChips(); }
+  if (tab === 'symptom')    { if (!document.getElementById('symptom-dt').value) setNow('symptom-dt'); }
+  if (tab === 'medication') { if (!document.getElementById('medication-dt').value) setNow('medication-dt'); }
   if (tab === 'note')       setTimeout(loadTodayNote, 0);
   if (tab === 'history') renderHistory();
   if (tab === 'mehr')    { updateNotifStatus(); renderReminderList(); renderSyncSection(); }

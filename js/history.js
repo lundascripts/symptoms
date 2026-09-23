@@ -1,4 +1,30 @@
 let currentFilter = 'all';
+let _pendingDelete = null;
+
+function _commitPendingDelete() {
+  if (!_pendingDelete) return;
+  clearTimeout(_pendingDelete.timeout);
+  if (_pendingDelete.type === 'entry') {
+    saveEntries(getEntries().filter(e => e.id !== _pendingDelete.id));
+    addDeletedId(_pendingDelete.id);
+    autoSync();
+  } else {
+    const notes = getDayNotes();
+    delete notes[_pendingDelete.dateStr];
+    saveDayNotes(notes);
+    if (_pendingDelete.dateStr === todayStr()) document.getElementById('day-note-input').value = '';
+    autoSync();
+  }
+  _pendingDelete = null;
+}
+
+function undoDelete() {
+  if (!_pendingDelete) return;
+  clearTimeout(_pendingDelete.timeout);
+  _pendingDelete = null;
+  renderHistory();
+  toast('Rückgängig gemacht ✓');
+}
 
 function setFilter(f) {
   currentFilter = f;
@@ -64,6 +90,8 @@ function renderHistory() {
   if (from) entries = entries.filter(e => e.datetime.split('T')[0] >= from);
   if (to)   entries = entries.filter(e => e.datetime.split('T')[0] <= to);
   if (q)    entries = entries.filter(e => _entryMatchesSearch(e, q));
+
+  if (_pendingDelete?.type === 'entry') entries = entries.filter(e => e.id !== _pendingDelete.id);
 
   entries.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
 
@@ -161,21 +189,17 @@ function renderHistory() {
 }
 
 function deleteEntry(id) {
-  if (!confirm('Eintrag löschen?')) return;
-  saveEntries(getEntries().filter(e => e.id !== id));
-  addDeletedId(id);
+  _commitPendingDelete();
+  _pendingDelete = { type: 'entry', id, timeout: setTimeout(_commitPendingDelete, 5000) };
   renderHistory();
-  autoSync();
+  toastHtml('Eintrag gelöscht. <button class="toast-undo" onclick="undoDelete()">Rückgängig</button>', 5000);
 }
 
 function deleteDayNote(dateStr) {
-  if (!confirm('Notiz löschen?')) return;
-  const notes = getDayNotes();
-  delete notes[dateStr];
-  saveDayNotes(notes);
-  if (dateStr === todayStr()) document.getElementById('day-note-input').value = '';
+  _commitPendingDelete();
+  _pendingDelete = { type: 'note', dateStr, timeout: setTimeout(_commitPendingDelete, 5000) };
   renderHistory();
-  autoSync();
+  toastHtml('Notiz gelöscht. <button class="toast-undo" onclick="undoDelete()">Rückgängig</button>', 5000);
 }
 
 function openExport() { document.getElementById('export-modal').classList.add('open'); }

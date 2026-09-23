@@ -624,7 +624,8 @@ function clearAllUsedTerms() {
 // ── Save meal ──
 
 function saveMeal() {
-  if (mealRows.length === 0) { toast('Bitte mindestens einen Eintrag übernehmen.'); return; }
+  if (document.getElementById('meal-food-input').value.trim()) commitMealEntry();
+  if (mealRows.length === 0) { toast('Bitte mindestens einen Namen eingeben.'); return; }
   const food = mealRows.map(r => r.label).join('\n');
   const entries = getEntries();
   entries.push({ id: Date.now(), type: 'meal', datetime: document.getElementById('meal-dt').value,
