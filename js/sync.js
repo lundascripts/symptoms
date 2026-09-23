@@ -106,7 +106,7 @@ async function syncNow(opts = {}) {
     const localNotes = getDayNotes();
     let changed = false;
     Object.entries(merged.dayNotes || {}).forEach(([date, text]) => {
-      if (!localNotes[date]) { localNotes[date] = text; changed = true; }
+      if (localNotes[date] !== text) { localNotes[date] = text; changed = true; }
     });
     if (changed) saveDayNotes(localNotes);
 

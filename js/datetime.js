@@ -18,7 +18,7 @@ function openDtPicker(targetId) {
   const existing = document.getElementById(targetId).value;
   const now = existing ? new Date(existing) : new Date();
   _dtHour = now.getHours();
-  _dtMinute = Math.round(now.getMinutes() / 5) * 5 % 60;
+  _dtMinute = Math.min(Math.round(now.getMinutes() / 5) * 5, 55);
   _dtSelectedDate = localIso(now);
   _dtWeekOffset = 0;
 
