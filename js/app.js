@@ -56,6 +56,6 @@ function switchTab(tab) {
   if (tab === 'medication') { if (!document.getElementById('medication-dt').value) setNow('medication-dt'); }
   if (tab === 'note')       setTimeout(loadTodayNote, 0);
   if (tab === 'history') renderHistory();
-  if (tab === 'mehr')    { updateNotifStatus(); renderReminderList(); renderSyncSection(); }
+  if (tab === 'mehr')    { updateNotifStatus(); renderReminderList(); renderMealFollowupList(); renderSyncSection(); }
 }
 

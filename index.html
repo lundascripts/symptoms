@@ -243,6 +243,18 @@
         <p style="font-size:12px;color:var(--text2);margin-top:10px;line-height:1.5">
           Erinnerungen funktionieren auch wenn der Tab im Hintergrund ist. Für zuverlässige Benachrichtigungen auf iOS: App zum Homescreen hinzufügen.
         </p>
+
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+          <div style="font-weight:600;font-size:14px;margin-bottom:6px">Follow-up nach Mahlzeiten</div>
+          <p style="font-size:13px;color:var(--text2);margin-bottom:10px;line-height:1.5">
+            Nach dem Speichern einer Mahlzeit bekommst du zu den eingestellten Zeitpunkten eine Erinnerung, Symptome zu erfassen.
+          </p>
+          <div class="reminder-list" id="meal-followup-list"></div>
+          <div class="add-reminder-row">
+            <input type="number" id="meal-followup-input" placeholder="Minuten" min="1" max="999" style="width:90px" />
+            <button class="add-reminder-btn" onclick="addMealFollowupTime()">+ Hinzufügen</button>
+          </div>
+        </div>
       </div>
 
       <!-- Sync -->

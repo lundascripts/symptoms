@@ -28,9 +28,29 @@ function scheduleReminders(times) {
   });
 }
 
+let followupTimers = [];
+
+function scheduleMealFollowup(times) {
+  followupTimers.forEach(clearTimeout);
+  followupTimers = [];
+  const now = Date.now();
+  times.forEach((mins, i) => {
+    followupTimers.push(setTimeout(() => {
+      self.registration.showNotification('Symptom-Tagebuch', {
+        body: 'Wie geht\'s dir nach der Mahlzeit? Symptome erfassen ✏️',
+        tag: 'meal-followup-' + i,
+        renotify: true,
+      });
+    }, mins * 60 * 1000));
+  });
+}
+
 self.addEventListener('message', e => {
   if (e.data && e.data.type === 'SCHEDULE_REMINDERS') {
     scheduleReminders(e.data.times || []);
+  }
+  if (e.data && e.data.type === 'SCHEDULE_MEAL_FOLLOWUP') {
+    scheduleMealFollowup(e.data.times || []);
   }
 });
 

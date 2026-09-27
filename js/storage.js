@@ -38,6 +38,11 @@ function addUsedTerms(names) {
   }
 }
 
+function getMealFollowupTimes() {
+  try { return JSON.parse(localStorage.getItem('tagebuch_meal_followup_times') || '[]'); } catch { return []; }
+}
+function saveMealFollowupTimes(t) { localStorage.setItem('tagebuch_meal_followup_times', JSON.stringify(t)); }
+
 function getDeletedMealTemplateIds() {
   try { return JSON.parse(localStorage.getItem('tagebuch_deleted_meal_template_ids') || '[]'); } catch { return []; }
 }

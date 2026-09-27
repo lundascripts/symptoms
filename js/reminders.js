@@ -185,6 +185,71 @@ function scheduleReminders() {
   }
 }
 
+async function scheduleMealFollowup() {
+  const times = getMealFollowupTimes();
+  if (!times.length) return;
+
+  if (isCapacitor()) {
+    const { LocalNotifications } = Capacitor.Plugins;
+    const perm = await getNativePermissionStatus();
+    if (perm !== 'granted') return;
+    await ensureChannel();
+    // Bestehende Follow-ups canceln (negative IDs)
+    const pending = await LocalNotifications.getPending();
+    const followups = pending.notifications.filter(n => n.id < 0);
+    if (followups.length) await LocalNotifications.cancel({ notifications: followups });
+    const now = Date.now();
+    await LocalNotifications.schedule({
+      notifications: times.map((mins, i) => ({
+        id: -(i + 1),
+        title: 'Symptom-Tagebuch',
+        body: 'Wie geht\'s dir nach der Mahlzeit? Symptome erfassen ✏️',
+        schedule: { at: new Date(now + mins * 60 * 1000) },
+        channelId: 'reminders',
+      })),
+    });
+  } else {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    if (!navigator.serviceWorker?.controller) return;
+    navigator.serviceWorker.controller.postMessage({
+      type: 'SCHEDULE_MEAL_FOLLOWUP',
+      times,
+    });
+  }
+}
+
+function renderMealFollowupList() {
+  const times = getMealFollowupTimes();
+  const el = document.getElementById('meal-followup-list');
+  if (!el) return;
+  el.innerHTML = times.length === 0
+    ? '<p style="font-size:14px;color:var(--text2);margin-bottom:8px">Noch keine Follow-up-Zeiten.</p>'
+    : times.map(m => `
+      <div class="reminder-row">
+        <span>Nach ${m} Minuten</span>
+        <button class="reminder-del" onclick="removeMealFollowupTime(${m})">×</button>
+      </div>`).join('');
+}
+
+async function addMealFollowupTime() {
+  const input = document.getElementById('meal-followup-input');
+  const val = parseInt(input.value);
+  if (!val || val < 1 || val > 999) { toast('Bitte eine Minutenzahl zwischen 1 und 999 eingeben.'); return; }
+  const times = getMealFollowupTimes();
+  if (times.includes(val)) { toast('Diese Zeit ist bereits eingetragen.'); return; }
+  times.push(val);
+  times.sort((a, b) => a - b);
+  saveMealFollowupTimes(times);
+  input.value = '';
+  renderMealFollowupList();
+  toast(`Follow-up nach ${val} min gesetzt ✓`);
+}
+
+function removeMealFollowupTime(m) {
+  saveMealFollowupTimes(getMealFollowupTimes().filter(t => t !== m));
+  renderMealFollowupList();
+}
+
 // Beim Laden initialisieren
 if (isCapacitor()) {
   updateNotifStatus();

@@ -632,6 +632,7 @@ function saveMeal() {
     food, notes: document.getElementById('meal-notes').value.trim() || null });
   saveEntries(entries);
   autoSync();
+  scheduleMealFollowup();
   mealRows = [];
   renderMealRows();
   _clearMealEntry();
