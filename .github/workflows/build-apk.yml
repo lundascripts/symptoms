@@ -26,8 +26,11 @@ jobs:
       - name: npm install
         run: npm ci
 
-      - name: www/ bauen und Capacitor sync
-        run: npm run sync
+      - name: www/ bauen und Android-Plattform initialisieren
+        run: |
+          node build.js
+          npx cap add android
+          npx cap sync android
 
       - name: Gradle-Wrapper ausführbar machen
         run: chmod +x android/gradlew

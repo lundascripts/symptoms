@@ -17,6 +17,8 @@ function copyDir(from, to) {
   }
 }
 
+fs.mkdirSync(dst, { recursive: true });
+
 // Dateien die direkt im Root liegen
 for (const file of ['index.html', 'sw.js']) {
   fs.copyFileSync(path.join(src, file), path.join(dst, file));
