@@ -72,9 +72,29 @@ function toastHtml(html, duration = 4000) {
   setTimeout(() => el.classList.remove('show'), duration);
 }
 
-function download(blob, filename) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename; a.click();
-  URL.revokeObjectURL(url);
+async function download(blob, filename) {
+  if (typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform()) {
+    // Auf Android: Datei temporär schreiben, dann nativen Share-Dialog öffnen
+    const { Filesystem, Share } = Capacitor.Plugins;
+    const reader = new FileReader();
+    const base64 = await new Promise(resolve => {
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.readAsDataURL(blob);
+    });
+    const result = await Filesystem.writeFile({
+      path: filename,
+      data: base64,
+      directory: 'CACHE',
+    });
+    await Share.share({
+      title: filename,
+      url: result.uri,
+      dialogTitle: 'Datei speichern oder teilen',
+    });
+  } else {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+  }
 }
