@@ -264,7 +264,7 @@ function removeMealRow(i) {
   renderMealRows();
 }
 
-function editMealRow(i) {
+function _doEditMealRow(i) {
   const row = mealRows[i];
   mealRows.splice(i, 1);
   renderMealRows();
@@ -272,6 +272,18 @@ function editMealRow(i) {
   mealEntryIngredients = row.ingredients.slice();
   renderMealIngredientList();
   document.getElementById('meal-food-input').focus();
+}
+
+function editMealRow(i) {
+  const currentName = document.getElementById('meal-food-input').value.trim();
+  const hasContent = currentName || mealEntryIngredients.length > 0;
+  if (!hasContent) { _doEditMealRow(i); return; }
+  showConfirm(
+    `Im Formular steht bereits „${currentName || 'eine Eingabe'}". Was soll damit passieren?`,
+    'Übernehmen', 'Verwerfen',
+    () => { commitMealEntry(); _doEditMealRow(i); },
+    () => { _clearMealEntry(); _doEditMealRow(i); }
+  );
 }
 
 function clearMealRows() {
