@@ -72,29 +72,52 @@ function toastHtml(html, duration = 4000) {
   setTimeout(() => el.classList.remove('show'), duration);
 }
 
-async function download(blob, filename) {
-  if (typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform()) {
-    // Auf Android: Datei temporär schreiben, dann nativen Share-Dialog öffnen
-    const { Filesystem, Share } = Capacitor.Plugins;
+function isNative() {
+  return typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform();
+}
+
+async function _blobToBase64(blob) {
+  return new Promise(resolve => {
     const reader = new FileReader();
-    const base64 = await new Promise(resolve => {
-      reader.onload = () => resolve(reader.result.split(',')[1]);
-      reader.readAsDataURL(blob);
-    });
-    const result = await Filesystem.writeFile({
-      path: filename,
-      data: base64,
-      directory: 'CACHE',
-    });
-    await Share.share({
-      title: filename,
-      url: result.uri,
-      dialogTitle: 'Datei speichern oder teilen',
-    });
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function download(blob, filename) {
+  if (isNative()) {
+    await shareFile(blob, filename);
   } else {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = filename; a.click();
     URL.revokeObjectURL(url);
   }
+}
+
+async function shareFile(blob, filename) {
+  const { Filesystem, Share } = Capacitor.Plugins;
+  const base64 = await _blobToBase64(blob);
+  const result = await Filesystem.writeFile({
+    path: filename,
+    data: base64,
+    directory: 'CACHE',
+  });
+  await Share.share({
+    title: filename,
+    url: result.uri,
+    dialogTitle: 'Datei teilen',
+  });
+}
+
+async function saveToDownloads(blob, filename) {
+  const { Filesystem } = Capacitor.Plugins;
+  const base64 = await _blobToBase64(blob);
+  await Filesystem.writeFile({
+    path: filename,
+    data: base64,
+    directory: 'EXTERNAL_STORAGE',
+    recursive: true,
+  });
+  toast(`Gespeichert in Downloads: ${filename}`);
 }

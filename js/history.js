@@ -202,20 +202,51 @@ function deleteDayNote(dateStr) {
   toastHtml('Notiz gelöscht. <button class="toast-undo" onclick="undoDelete()">Rückgängig</button>', 5000);
 }
 
-function openExport() { document.getElementById('export-modal').classList.add('open'); }
+function openExport() {
+  const container = document.getElementById('export-modal-btns');
+  if (isNative()) {
+    container.innerHTML = `
+      <div class="export-format-group">
+        <div class="export-format-label">JSON <span>Für KI-Analyse oder Backup — vollständige Rohdaten</span></div>
+        <div class="export-actions">
+          <button class="modal-btn export-action-btn" onclick="saveToDownloads(new Blob([JSON.stringify({entries:getEntries(),dayNotes:getDayNotes()},null,2)],{type:'application/json'}), 'tagebuch_'+todayStr()+'.json'); closeExport()">Speichern</button>
+          <button class="modal-btn export-action-btn" onclick="exportJSON('share')">Teilen</button>
+        </div>
+      </div>
+      <div class="export-format-group">
+        <div class="export-format-label">CSV <span>Für Excel / Arzt — tabellarisches Format</span></div>
+        <div class="export-actions">
+          <button class="modal-btn export-action-btn" onclick="exportCSV('save')">Speichern</button>
+          <button class="modal-btn export-action-btn" onclick="exportCSV('share')">Teilen</button>
+        </div>
+      </div>`;
+  } else {
+    container.innerHTML = `
+      <button class="modal-btn" onclick="exportJSON()">
+        Als JSON exportieren
+        <span>Für KI-Analyse oder Backup — vollständige Rohdaten</span>
+      </button>
+      <button class="modal-btn" onclick="exportCSV()">
+        Als CSV exportieren
+        <span>Für Excel / Arzt — tabellarisches Format</span>
+      </button>`;
+  }
+  document.getElementById('export-modal').classList.add('open');
+}
 function closeExport(e) {
   if (!e || e.target === document.getElementById('export-modal'))
     document.getElementById('export-modal').classList.remove('open');
 }
 
-function exportJSON() {
-  const data = { entries: getEntries(), dayNotes: getDayNotes() };
-  download(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }),
-    `tagebuch_${todayStr()}.json`);
+function exportJSON(action) {
+  const blob = new Blob([JSON.stringify({ entries: getEntries(), dayNotes: getDayNotes() }, null, 2)], { type: 'application/json' });
+  const filename = `tagebuch_${todayStr()}.json`;
+  if (action === 'save') saveToDownloads(blob, filename);
+  else download(blob, filename);
   closeExport();
 }
 
-function exportCSV() {
+function exportCSV(action) {
   const entries = getEntries();
   const dayNotes = getDayNotes();
   const rows = [['ID', 'Typ', 'Datum', 'Uhrzeit', 'Inhalt', 'Schweregrad', 'Bristol', 'Stimmung', 'Notizen']];
@@ -244,8 +275,10 @@ function exportCSV() {
   });
 
   const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
-  download(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }),
-    `tagebuch_${todayStr()}.csv`);
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+  const filename = `tagebuch_${todayStr()}.csv`;
+  if (action === 'save') saveToDownloads(blob, filename);
+  else download(blob, filename);
   closeExport();
 }
 

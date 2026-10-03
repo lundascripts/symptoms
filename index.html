@@ -508,16 +508,7 @@
 <div class="modal-overlay" id="export-modal" onclick="closeExport(event)">
   <div class="modal">
     <h2>Daten</h2>
-    <div class="modal-btns">
-      <button class="modal-btn" onclick="exportJSON()">
-        Als JSON exportieren
-        <span>Für KI-Analyse oder Backup — vollständige Rohdaten</span>
-      </button>
-      <button class="modal-btn" onclick="exportCSV()">
-        Als CSV exportieren
-        <span>Für Excel / Arzt — tabellarisches Format</span>
-      </button>
-    </div>
+    <div class="modal-btns" id="export-modal-btns"></div>
     <button class="modal-cancel" onclick="closeExport()">Schließen</button>
   </div>
 </div>
