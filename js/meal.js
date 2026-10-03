@@ -94,12 +94,21 @@ function selectMealNameAutocomplete(id) {
   const currentName = document.getElementById('meal-food-input').value.trim();
   const hasContent = currentName || mealEntryIngredients.length > 0;
   if (!hasContent) { _applyMealTemplate(id); return; }
-  showConfirm(
-    `Im Formular steht bereits „${currentName || 'eine Eingabe'}". Was soll damit passieren?`,
-    'Übernehmen', 'Verwerfen',
-    () => { commitMealEntry(); _applyMealTemplate(id); },
-    () => { _clearMealEntry(); _applyMealTemplate(id); }
-  );
+  if (currentName) {
+    showConfirm(
+      `Im Formular steht bereits „${currentName}". Was soll damit passieren?`,
+      'Übernehmen', 'Verwerfen',
+      () => { commitMealEntry(); _applyMealTemplate(id); },
+      () => { _clearMealEntry(); _applyMealTemplate(id); }
+    );
+  } else {
+    showConfirm(
+      'Im Formular stehen Zutaten ohne Namen – sie gehen verloren. Trotzdem laden?',
+      'Laden', 'Abbrechen',
+      () => { _clearMealEntry(); _applyMealTemplate(id); },
+      () => {}
+    );
+  }
 }
 
 // ── Ingredient autocomplete ──
@@ -278,12 +287,21 @@ function editMealRow(i) {
   const currentName = document.getElementById('meal-food-input').value.trim();
   const hasContent = currentName || mealEntryIngredients.length > 0;
   if (!hasContent) { _doEditMealRow(i); return; }
-  showConfirm(
-    `Im Formular steht bereits „${currentName || 'eine Eingabe'}". Was soll damit passieren?`,
-    'Übernehmen', 'Verwerfen',
-    () => { commitMealEntry(); _doEditMealRow(i); },
-    () => { _clearMealEntry(); _doEditMealRow(i); }
-  );
+  if (currentName) {
+    showConfirm(
+      `Im Formular steht bereits „${currentName}". Was soll damit passieren?`,
+      'Übernehmen', 'Verwerfen',
+      () => { commitMealEntry(); _doEditMealRow(i); },
+      () => { _clearMealEntry(); _doEditMealRow(i); }
+    );
+  } else {
+    showConfirm(
+      'Im Formular stehen Zutaten ohne Namen – sie gehen verloren. Trotzdem bearbeiten?',
+      'Bearbeiten', 'Abbrechen',
+      () => { _clearMealEntry(); _doEditMealRow(i); },
+      () => {}
+    );
+  }
 }
 
 function clearMealRows() {

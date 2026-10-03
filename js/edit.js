@@ -275,7 +275,7 @@ function renderEditMealRows() {
   `).join('');
 }
 
-function editEditMealRow(i) {
+function _doEditEditMealRow(i) {
   const row = editMealRows[i];
   editMealRows.splice(i, 1);
   document.getElementById('edit-meal-name-input').value = row.name;
@@ -283,6 +283,27 @@ function editEditMealRow(i) {
   renderEditMealRows();
   renderEditMealIngredientList();
   document.getElementById('edit-meal-name-input').focus();
+}
+
+function editEditMealRow(i) {
+  const currentName = document.getElementById('edit-meal-name-input').value.trim();
+  const hasContent = currentName || editMealIngredients.length > 0;
+  if (!hasContent) { _doEditEditMealRow(i); return; }
+  if (currentName) {
+    showConfirm(
+      `Im Formular steht bereits „${currentName}". Was soll damit passieren?`,
+      'Übernehmen', 'Verwerfen',
+      () => { commitEditMealEntry(); _doEditEditMealRow(i); },
+      () => { _clearEditMealEntry(); _doEditEditMealRow(i); }
+    );
+  } else {
+    showConfirm(
+      'Im Formular stehen Zutaten ohne Namen – sie gehen verloren. Trotzdem bearbeiten?',
+      'Bearbeiten', 'Abbrechen',
+      () => { _clearEditMealEntry(); _doEditEditMealRow(i); },
+      () => {}
+    );
+  }
 }
 
 function removeEditMealRow(i) {
