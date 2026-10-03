@@ -60,6 +60,16 @@ function formatMealFood(food) {
   return '<ul class="meal-food-list">' + lines.map(l => `<li>${esc(l)}</li>`).join('') + '</ul>';
 }
 
+function showConfirm(message, yesLabel, noLabel, onYes, onNo) {
+  document.getElementById('confirm-message').textContent = message;
+  document.getElementById('confirm-yes').textContent = yesLabel;
+  document.getElementById('confirm-no').textContent = noLabel;
+  const modal = document.getElementById('confirm-modal');
+  modal.classList.add('open');
+  document.getElementById('confirm-yes').onclick = () => { modal.classList.remove('open'); onYes && onYes(); };
+  document.getElementById('confirm-no').onclick = () => { modal.classList.remove('open'); onNo && onNo(); };
+}
+
 function toast(msg) {
   const el = document.getElementById('toast');
   el.textContent = msg; el.classList.add('show');

@@ -176,20 +176,44 @@ function commitMealEntry() {
   _clearMealEntry();
 }
 
-function saveMealEntryAsDish() {
-  const name = document.getElementById('meal-food-input').value.trim();
-  if (!name) { toast('Bitte einen Namen eingeben.'); return; }
-  const dishs = getMealTemplates();
-  if (dishs.some(d => d.name.toLowerCase() === name.toLowerCase())) {
-    toast(`„${name}" gibt es bereits.`); return;
+function _dishContentEqual(d, compIds, freeText) {
+  const sameComponents = JSON.stringify((d.components || []).slice().sort()) === JSON.stringify(compIds.slice().sort());
+  const sameText = (d.text || '') === freeText;
+  return sameComponents && sameText;
+}
+
+function _doSaveMealEntryAsDish(dishs, existing, name, compIds, freeText) {
+  if (existing) {
+    existing.components = compIds;
+    existing.text = freeText;
+  } else {
+    dishs.push({ id: Date.now(), name, text: freeText, components: compIds });
   }
-  const compIds = mealEntryIngredients.filter(i => i.id).map(i => i.id);
-  const freeText = mealEntryIngredients.filter(i => !i.id).map(i => i.name).join(', ');
-  dishs.push({ id: Date.now(), name, text: freeText, components: compIds });
   saveMealTemplates(dishs);
   autoSync();
   toast(`Gericht „${name}" gespeichert ✓`);
   renderMealFavoriteChips();
+}
+
+function saveMealEntryAsDish() {
+  const name = document.getElementById('meal-food-input').value.trim();
+  if (!name) { toast('Bitte einen Namen eingeben.'); return; }
+  const dishs = getMealTemplates();
+  const existing = dishs.find(d => d.name.toLowerCase() === name.toLowerCase());
+  const compIds = mealEntryIngredients.filter(i => i.id).map(i => i.id);
+  const freeText = mealEntryIngredients.filter(i => !i.id).map(i => i.name).join(', ');
+  if (existing) {
+    if (_dishContentEqual(existing, compIds, freeText)) {
+      toast(`„${name}" ist bereits gespeichert.`); return;
+    }
+    showConfirm(
+      `„${name}" existiert bereits. Soll es mit der aktuellen Version überschrieben werden?`,
+      'Überschreiben', 'Abbrechen',
+      () => _doSaveMealEntryAsDish(dishs, existing, name, compIds, freeText)
+    );
+    return;
+  }
+  _doSaveMealEntryAsDish(dishs, null, name, compIds, freeText);
 }
 
 // ── Meal rows (committed entries) ──
@@ -522,16 +546,35 @@ function saveNewDish() {
   const name = document.getElementById('dish-new-name').value.trim();
   if (!name) { toast('Bitte einen Namen eingeben.'); return; }
   const dishs = getMealTemplates();
-  if (dishs.some(d => d.name.toLowerCase() === name.toLowerCase())) { toast(`„${name}" gibt es bereits.`); return; }
+  const existing = dishs.find(d => d.name.toLowerCase() === name.toLowerCase());
   const components = _newDishIngredients.filter(i => i.id).map(i => i.id);
   const text = _newDishIngredients.filter(i => !i.id).map(i => i.name).join(', ');
-  dishs.push({ id: Date.now(), name, text, components });
-  saveMealTemplates(dishs);
-  autoSync();
-  document.getElementById('dish-new-form').style.display = 'none';
-  _resetNewDishForm();
-  renderDishList();
-  toast(`Gericht „${name}" gespeichert ✓`);
+  const doSave = (overwrite) => {
+    if (overwrite) {
+      existing.components = components;
+      existing.text = text;
+    } else {
+      dishs.push({ id: Date.now(), name, text, components });
+    }
+    saveMealTemplates(dishs);
+    autoSync();
+    document.getElementById('dish-new-form').style.display = 'none';
+    _resetNewDishForm();
+    renderDishList();
+    toast(`Gericht „${name}" gespeichert ✓`);
+  };
+  if (existing) {
+    if (_dishContentEqual(existing, components, text)) {
+      toast(`„${name}" ist bereits gespeichert.`); return;
+    }
+    showConfirm(
+      `„${name}" existiert bereits. Soll es mit der aktuellen Version überschrieben werden?`,
+      'Überschreiben', 'Abbrechen',
+      () => doSave(true)
+    );
+    return;
+  }
+  doSave(false);
 }
 
 // ── Edit dish ──

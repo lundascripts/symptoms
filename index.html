@@ -110,7 +110,6 @@
             <button class="quick-chip chip-symptom" onclick="addSymptomChip('Aufstoßen')">Aufstoßen</button>
             <button class="quick-chip chip-symptom" onclick="addSymptomChip('Bauchschmerzen')">Bauchschmerzen</button>
             <button class="quick-chip chip-symptom" onclick="addSymptomChip('Blähungen')">Blähungen</button>
-            <button class="quick-chip chip-symptom" onclick="addSymptomChip('Durchfall')">Durchfall</button>
             <button class="quick-chip chip-symptom" onclick="addSymptomChip('Kopfschmerzen')">Kopfschmerzen</button>
             <button class="quick-chip chip-symptom" onclick="addSymptomChip('Krämpfe')">Krämpfe</button>
             <button class="quick-chip chip-symptom" onclick="addSymptomChip('Magenschmerzen')">Magenschmerzen</button>
@@ -439,7 +438,6 @@
           <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Aufstoßen')">Aufstoßen</button>
           <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Bauchschmerzen')">Bauchschmerzen</button>
           <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Blähungen')">Blähungen</button>
-          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Durchfall')">Durchfall</button>
           <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Kopfschmerzen')">Kopfschmerzen</button>
           <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Krämpfe')">Krämpfe</button>
           <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Magenschmerzen')">Magenschmerzen</button>
@@ -510,6 +508,17 @@
     <h2>Daten</h2>
     <div class="modal-btns" id="export-modal-btns"></div>
     <button class="modal-cancel" onclick="closeExport()">Schließen</button>
+  </div>
+</div>
+
+<!-- Confirm dialog -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal">
+    <p id="confirm-message" style="margin-bottom:16px;line-height:1.4"></p>
+    <div class="modal-btns">
+      <button class="modal-btn" id="confirm-yes"></button>
+      <button class="modal-cancel" id="confirm-no"></button>
+    </div>
   </div>
 </div>
 
