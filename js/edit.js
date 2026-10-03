@@ -1,12 +1,11 @@
 let editEntryId = null;
+let _editEntryType = null;
 let editSymptomRows = [];
 let editSelectedBristol = null;
 let editSelectedMood = null;
-let editMedicationRows = []; // [{name, dose}]
-
-// ── Edit meal state ──
-let editMealRows = [];         // [{name, ingredients, label}]
-let editMealIngredients = [];  // [{id|null, name, components:[]}] — current entry being built
+let editMedicationRows = [];
+let editMealRows = [];
+let editMealIngredients = [];
 
 function _parseFoodString(food) {
   if (!food) return [];
@@ -27,17 +26,10 @@ function openEditModal(id) {
   const entry = getEntries().find(e => e.id === id);
   if (!entry) return;
   editEntryId = id;
+  _editEntryType = entry.type;
 
-  document.getElementById('edit-dt').value = entry.datetime;
-
-  const isMeal = entry.type === 'meal';
-  const isMedication = entry.type === 'medication';
-  document.getElementById('edit-meal-section').style.display = isMeal ? '' : 'none';
-  document.getElementById('edit-symptom-section').style.display = (!isMeal && !isMedication) ? '' : 'none';
-  document.getElementById('edit-medication-section').style.display = isMedication ? '' : 'none';
-  document.getElementById('edit-save-as-dish-btn').style.display = isMeal ? '' : 'none';
-
-  if (isMeal) {
+  if (entry.type === 'meal') {
+    setDtDisplay('edit-meal-dt', entry.datetime);
     editMealRows = _parseFoodString(entry.food || '');
     editMealIngredients = [];
     document.getElementById('edit-meal-name-input').value = '';
@@ -46,45 +38,49 @@ function openEditModal(id) {
     _hideEditMealIngredientAutocomplete();
     renderEditMealRows();
     renderEditMealIngredientList();
+    renderEditMealFavoriteChips();
     document.getElementById('edit-meal-notes').value = entry.notes || '';
+    document.getElementById('edit-screen-meal').classList.add('open');
+
+  } else if (entry.type === 'medication') {
+    setDtDisplay('edit-medication-dt', entry.datetime);
+    editMedicationRows = (entry.medications || []).map(m => ({ name: m.name, dose: m.dose || '' }));
+    renderEditMedicationRows();
+    renderEditMedicationChips();
+    document.getElementById('edit-medication-notes').value = entry.notes || '';
+    document.getElementById('edit-medication-custom-input').value = '';
+    document.getElementById('edit-screen-medication').classList.add('open');
+
   } else {
-    // Symptom rows
+    setDtDisplay('edit-symptom-dt', entry.datetime);
     editSymptomRows = entry.symptoms
       ? entry.symptoms.map(s => ({ name: s.name, severity: s.severity }))
       : (entry.description ? [{ name: entry.description, severity: entry.severity || 0 }] : []);
     renderEditSymptomRows();
 
-    // Bristol
     editSelectedBristol = entry.bristol || null;
     document.querySelectorAll('.edit-bristol-btn').forEach(btn =>
       btn.classList.toggle('selected', parseInt(btn.dataset.n) === editSelectedBristol));
     document.getElementById('edit-bristol-hint').textContent =
       editSelectedBristol ? bristolData[editSelectedBristol - 1].desc : 'Tippe auf einen Typ für eine Beschreibung.';
 
-    // Mood
     editSelectedMood = entry.mood || null;
     document.querySelectorAll('.edit-mood-btn').forEach(btn =>
       btn.classList.toggle('selected', parseInt(btn.dataset.mood) === editSelectedMood));
 
     document.getElementById('edit-symptom-notes').value = entry.notes || '';
     document.getElementById('edit-symptom-custom-input').value = '';
+    document.getElementById('edit-screen-symptom').classList.add('open');
   }
-
-  if (isMedication) {
-    editMedicationRows = (entry.medications || []).map(m => ({ name: m.name, dose: m.dose || '' }));
-    renderEditMedicationRows();
-    renderEditMedicationChips();
-    document.getElementById('edit-medication-notes').value = entry.notes || '';
-    document.getElementById('edit-medication-custom-input').value = '';
-  }
-
-  document.getElementById('edit-modal').classList.add('open');
 }
 
-function closeEditModal(e) {
-  if (!e || e.target === document.getElementById('edit-modal'))
-    document.getElementById('edit-modal').classList.remove('open');
+function closeEditModal() {
+  document.getElementById('edit-screen-meal').classList.remove('open');
+  document.getElementById('edit-screen-symptom').classList.remove('open');
+  document.getElementById('edit-screen-medication').classList.remove('open');
 }
+
+// ── Symptom edit ──
 
 function renderEditSymptomRows() {
   const container = document.getElementById('edit-symptom-list');
@@ -167,29 +163,31 @@ function buildEditBristolButtons() {
   });
 }
 
+// ── Save ──
+
 function saveEdit() {
   const entries = getEntries();
   const idx = entries.findIndex(e => e.id === editEntryId);
   if (idx === -1) return;
-
   const entry = entries[idx];
-  entry.datetime = document.getElementById('edit-dt').value;
 
-  if (entry.type === 'medication') {
-    if (editMedicationRows.length === 0) { toast('Bitte mindestens ein Medikament angeben.'); return; }
-    entry.medications = editMedicationRows.map(r => ({ name: r.name, dose: r.dose.trim() || null }));
-    entry.notes = document.getElementById('edit-medication-notes').value.trim() || null;
-  } else if (entry.type === 'meal') {
+  if (entry.type === 'meal') {
     if (editMealRows.length === 0) { toast('Bitte mindestens einen Eintrag übernehmen.'); return; }
+    entry.datetime = document.getElementById('edit-meal-dt').value;
     entry.food = editMealRows.map(r => r.label).join('\n');
     entry.notes = document.getElementById('edit-meal-notes').value.trim() || null;
+  } else if (entry.type === 'medication') {
+    if (editMedicationRows.length === 0) { toast('Bitte mindestens ein Medikament angeben.'); return; }
+    entry.datetime = document.getElementById('edit-medication-dt').value;
+    entry.medications = editMedicationRows.map(r => ({ name: r.name, dose: r.dose.trim() || null }));
+    entry.notes = document.getElementById('edit-medication-notes').value.trim() || null;
   } else {
     if (editSymptomRows.length === 0 && !editSelectedBristol && !editSelectedMood) {
       toast('Bitte mindestens ein Symptom, Stuhlgang oder Stimmung angeben.');
       return;
     }
+    entry.datetime = document.getElementById('edit-symptom-dt').value;
     entry.symptoms = editSymptomRows.map(r => ({ name: r.name, severity: r.severity }));
-    // Remove old-format fields if present
     delete entry.description;
     delete entry.severity;
     entry.bristol = editSelectedBristol || null;
@@ -198,22 +196,13 @@ function saveEdit() {
   }
 
   saveEntries(entries);
-  document.getElementById('edit-modal').classList.remove('open');
+  closeEditModal();
   renderHistory();
   toast('Eintrag aktualisiert ✓');
   autoSync();
 }
 
-function saveEditMealAsDish() {
-  const name = editMealRows.length > 0 ? editMealRows[0].name : '';
-  document.getElementById('edit-modal').classList.remove('open');
-  openDishModal();
-  document.getElementById('dish-new-form').style.display = 'block';
-  document.getElementById('dish-new-name').value = name;
-  document.getElementById('dish-new-name').focus();
-}
-
-// ── Edit medication rows ──
+// ── Medication edit ──
 
 function renderEditMedicationChips() {
   const container = document.getElementById('edit-medication-chips');
@@ -267,18 +256,32 @@ function addEditMedicationCustom() {
   renderEditMedicationRows();
 }
 
-// ── Edit meal rows ──
+// ── Meal edit rows ──
 
 function renderEditMealRows() {
   const el = document.getElementById('edit-meal-rows');
   if (!el) return;
-  if (editMealRows.length === 0) { el.innerHTML = '<p style="color:var(--text-muted);font-size:0.9em;margin:0">Noch keine Einträge.</p>'; return; }
+  if (editMealRows.length === 0) {
+    el.innerHTML = '<p style="color:var(--text2);font-size:0.9em;margin:0">Noch keine Einträge.</p>';
+    return;
+  }
   el.innerHTML = editMealRows.map((row, i) => `
     <div class="meal-row">
       <div class="meal-row-info"><span class="meal-row-name">${esc(row.label)}</span></div>
+      <button class="meal-row-edit" onclick="editEditMealRow(${i})" title="Bearbeiten">✎</button>
       <button class="meal-row-del" onclick="removeEditMealRow(${i})">×</button>
     </div>
   `).join('');
+}
+
+function editEditMealRow(i) {
+  const row = editMealRows[i];
+  editMealRows.splice(i, 1);
+  document.getElementById('edit-meal-name-input').value = row.name;
+  editMealIngredients = row.ingredients.slice();
+  renderEditMealRows();
+  renderEditMealIngredientList();
+  document.getElementById('edit-meal-name-input').focus();
 }
 
 function removeEditMealRow(i) {
@@ -303,6 +306,15 @@ function removeEditMealIngredient(i) {
   renderEditMealIngredientList();
 }
 
+function _clearEditMealEntry() {
+  editMealIngredients = [];
+  document.getElementById('edit-meal-name-input').value = '';
+  document.getElementById('edit-meal-ingredient-input').value = '';
+  _hideEditMealAutocomplete();
+  _hideEditMealIngredientAutocomplete();
+  renderEditMealIngredientList();
+}
+
 function commitEditMealEntry() {
   const name = document.getElementById('edit-meal-name-input').value.trim();
   if (!name) { toast('Bitte einen Namen eingeben.'); return; }
@@ -311,16 +323,51 @@ function commitEditMealEntry() {
     : name;
   editMealRows.push({ name, ingredients: editMealIngredients.slice(), label });
   addUsedTerms([name, ...editMealIngredients.map(i => i.name)]);
-  editMealIngredients = [];
-  document.getElementById('edit-meal-name-input').value = '';
-  document.getElementById('edit-meal-ingredient-input').value = '';
-  _hideEditMealAutocomplete();
-  _hideEditMealIngredientAutocomplete();
+  _clearEditMealEntry();
   renderEditMealRows();
+}
+
+function renderEditMealFavoriteChips() {
+  const container = document.getElementById('edit-meal-favorite-chips');
+  const field = document.getElementById('edit-meal-favorites-field');
+  if (!container || !field) return;
+  const favs = getMealTemplates().filter(d => d.favorite);
+  field.style.display = favs.length ? '' : 'none';
+  container.innerHTML = favs.map(d =>
+    `<button class="quick-chip chip-fav" onclick="addEditMealFavoriteChip(${d.id})">${esc(d.name)}</button>`
+  ).join('');
+}
+
+function addEditMealFavoriteChip(id) {
+  const d = getMealTemplates().find(d => d.id === id);
+  if (!d) return;
+  document.getElementById('edit-meal-name-input').value = d.name;
+  _hideEditMealAutocomplete();
+  editMealIngredients = [];
+  const all = getMealTemplates();
+  if (d.components && d.components.length) {
+    editMealIngredients = d.components.map(cid => {
+      const t = all.find(t => t.id === cid);
+      return t ? { id: t.id, name: t.name, components: _resolveAllIngredients(t) } : null;
+    }).filter(Boolean);
+  } else if (d.text) {
+    editMealIngredients = d.text.split(/[,\n]/).map(s => s.trim()).filter(Boolean)
+      .map(name => ({ id: null, name, components: [] }));
+  }
   renderEditMealIngredientList();
 }
 
-// ── Edit meal name autocomplete ──
+function saveEditMealAsDish() {
+  const name = document.getElementById('edit-meal-name-input').value.trim()
+    || (editMealRows.length > 0 ? editMealRows[0].name : '');
+  closeEditModal();
+  openDishModal();
+  document.getElementById('dish-new-form').style.display = 'block';
+  document.getElementById('dish-new-name').value = name;
+  document.getElementById('dish-new-name').focus();
+}
+
+// ── Meal name autocomplete ──
 
 function onEditMealNameInput() {
   const val = document.getElementById('edit-meal-name-input').value.trim();
@@ -371,7 +418,13 @@ function selectEditMealName(id) {
   document.getElementById('edit-meal-ingredient-input').focus();
 }
 
-// ── Edit meal ingredient autocomplete ──
+function selectEditMealNameTerm(name) {
+  document.getElementById('edit-meal-name-input').value = name;
+  _hideEditMealAutocomplete();
+  document.getElementById('edit-meal-ingredient-input').focus();
+}
+
+// ── Meal ingredient autocomplete ──
 
 function onEditMealIngredientInput() {
   const val = document.getElementById('edit-meal-ingredient-input').value.trim();
@@ -393,7 +446,7 @@ function onEditMealIngredientInput() {
 }
 
 function onEditMealIngredientKeydown(e) {
-  if (e.key === 'Enter') { e.preventDefault(); _addEditMealIngredientFromInput(); }
+  if (e.key === 'Enter') { e.preventDefault(); addEditMealIngredientFromInput(); }
   if (e.key === 'Escape') _hideEditMealIngredientAutocomplete();
 }
 
@@ -411,12 +464,6 @@ function selectEditMealIngredient(id) {
   renderEditMealIngredientList();
 }
 
-function selectEditMealNameTerm(name) {
-  document.getElementById('edit-meal-name-input').value = name;
-  _hideEditMealAutocomplete();
-  document.getElementById('edit-meal-ingredient-input').focus();
-}
-
 function selectEditMealIngredientTerm(name) {
   editMealIngredients.push({ id: null, name, components: [] });
   document.getElementById('edit-meal-ingredient-input').value = '';
@@ -424,7 +471,7 @@ function selectEditMealIngredientTerm(name) {
   renderEditMealIngredientList();
 }
 
-function _addEditMealIngredientFromInput() {
+function addEditMealIngredientFromInput() {
   const val = document.getElementById('edit-meal-ingredient-input').value.trim();
   if (!val) return;
   _hideEditMealIngredientAutocomplete();

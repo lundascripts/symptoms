@@ -401,124 +401,161 @@
   </div>
 </div>
 
-<!-- Edit modal -->
-<div class="modal-overlay" id="edit-modal" onclick="closeEditModal(event)">
-  <div class="modal" style="max-height:90vh;overflow-y:auto">
-    <h2>Eintrag bearbeiten</h2>
-
+<!-- Edit screen: Mahlzeit -->
+<div class="edit-screen" id="edit-screen-meal">
+  <div class="edit-screen-header meal-header">
+    <button class="edit-screen-back" onclick="closeEditModal()">← Zurück</button>
+    <span>Mahlzeit bearbeiten</span>
+  </div>
+  <div class="card">
     <div class="field">
       <label>Datum & Uhrzeit</label>
-      <input type="datetime-local" id="edit-dt" />
+      <button class="dt-trigger" id="edit-meal-dt-display" onclick="openDtPicker('edit-meal-dt')">–</button>
+      <input type="hidden" id="edit-meal-dt" />
       <div class="dt-quick-chips">
-        <button class="dt-quick-chip" onclick="setEditDtQuick(0)">Jetzt</button>
-        <button class="dt-quick-chip" onclick="setEditDtQuick(30)">−30min</button>
-        <button class="dt-quick-chip" onclick="setEditDtQuick(60)">−60min</button>
+        <button class="dt-quick-chip" onclick="setDtQuick('edit-meal-dt', 0)">Jetzt</button>
+        <button class="dt-quick-chip" onclick="setDtQuick('edit-meal-dt', 30)">−30min</button>
+        <button class="dt-quick-chip" onclick="setDtQuick('edit-meal-dt', 60)">−60min</button>
       </div>
     </div>
-
-    <!-- Mahlzeit -->
-    <div id="edit-meal-section">
-      <div class="field">
-        <label>Mahlzeit-Einträge</label>
-        <div id="edit-meal-rows"></div>
-      </div>
-
-      <!-- Neuen Eintrag hinzufügen -->
-      <div class="field">
-        <label>Eintrag hinzufügen</label>
-        <div class="meal-entry-card">
-          <div class="autocomplete-wrap">
-            <input type="text" id="edit-meal-name-input" placeholder="Name des Gerichts…"
-              oninput="onEditMealNameInput()" onkeydown="onEditMealNameKeydown(event)" autocomplete="off" />
-            <div class="meal-autocomplete-list" id="edit-meal-name-autocomplete" style="display:none"></div>
-          </div>
-          <div class="autocomplete-wrap" style="margin-top:6px">
-            <input type="text" id="edit-meal-ingredient-input" placeholder="Zutat hinzufügen…"
-              oninput="onEditMealIngredientInput()" onkeydown="onEditMealIngredientKeydown(event)" autocomplete="off" />
-            <div class="meal-autocomplete-list" id="edit-meal-ingredient-autocomplete" style="display:none"></div>
-          </div>
-          <div id="edit-meal-ingredient-list"></div>
-          <button class="modal-btn" style="margin-top:8px" onclick="commitEditMealEntry()">Übernehmen</button>
+    <div class="field" id="edit-meal-favorites-field" style="display:none">
+      <label>Favoriten</label>
+      <div id="edit-meal-favorite-chips" class="quick-chips"></div>
+    </div>
+    <div class="field">
+      <label>Was hast du gegessen?</label>
+      <div class="meal-entry-card">
+        <div style="position:relative">
+          <input type="text" id="edit-meal-name-input" placeholder="Name…" autocomplete="off"
+            oninput="onEditMealNameInput()" onkeydown="onEditMealNameKeydown(event)" onblur="setTimeout(_hideEditMealAutocomplete,150)" />
+          <div id="edit-meal-name-autocomplete" class="meal-autocomplete-list" style="display:none"></div>
+        </div>
+        <div id="edit-meal-ingredient-list"></div>
+        <div class="symptom-add-row" style="position:relative">
+          <input type="text" id="edit-meal-ingredient-input" placeholder="Zutat hinzufügen…" autocomplete="off"
+            oninput="onEditMealIngredientInput()" onkeydown="onEditMealIngredientKeydown(event)" onblur="setTimeout(_hideEditMealIngredientAutocomplete,150)" />
+          <button class="symptom-add-btn" onclick="addEditMealIngredientFromInput()">+</button>
+          <div id="edit-meal-ingredient-autocomplete" class="meal-autocomplete-list" style="display:none"></div>
+        </div>
+        <div class="meal-entry-actions">
+          <button class="btn-save btn-meal" style="margin-top:0" onclick="commitEditMealEntry()">Übernehmen</button>
+          <button class="btn-icon btn-icon-save" onclick="saveEditMealAsDish()" title="Als Gericht speichern">💾</button>
+          <button class="btn-icon btn-icon-clear" onclick="_clearEditMealEntry()" title="Leeren">✕</button>
         </div>
       </div>
+      <div id="edit-meal-rows" class="meal-rows"></div>
+    </div>
+    <div class="field">
+      <label>Notizen (optional)</label>
+      <input type="text" id="edit-meal-notes" placeholder="z.B. sehr fettig, auswärts gegessen" />
+    </div>
+    <button class="btn-save btn-meal" onclick="saveEdit()">Änderungen speichern</button>
+  </div>
+</div>
 
-      <div class="field">
-        <label>Notizen (optional)</label>
-        <input type="text" id="edit-meal-notes" />
+<!-- Edit screen: Symptom -->
+<div class="edit-screen" id="edit-screen-symptom">
+  <div class="edit-screen-header symptom-header">
+    <button class="edit-screen-back" onclick="closeEditModal()">← Zurück</button>
+    <span>Symptom bearbeiten</span>
+  </div>
+  <div class="card">
+    <div class="field">
+      <label>Datum & Uhrzeit</label>
+      <button class="dt-trigger" id="edit-symptom-dt-display" onclick="openDtPicker('edit-symptom-dt')">–</button>
+      <input type="hidden" id="edit-symptom-dt" />
+      <div class="dt-quick-chips">
+        <button class="dt-quick-chip" onclick="setDtQuick('edit-symptom-dt', 0)">Jetzt</button>
+        <button class="dt-quick-chip" onclick="setDtQuick('edit-symptom-dt', 30)">−30min</button>
+        <button class="dt-quick-chip" onclick="setDtQuick('edit-symptom-dt', 60)">−60min</button>
       </div>
     </div>
-
-    <!-- Symptom -->
-    <div id="edit-symptom-section">
-      <div class="field">
-        <label>Schnellauswahl</label>
-        <div class="quick-chips">
-          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Appetitlosigkeit')">Appetitlosigkeit</button>
-          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Aufgeblähter Bauch')">Aufgeblähter Bauch</button>
-          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Aufstoßen')">Aufstoßen</button>
-          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Bauchschmerzen')">Bauchschmerzen</button>
-          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Blähungen')">Blähungen</button>
-          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Kopfschmerzen')">Kopfschmerzen</button>
-          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Krämpfe')">Krämpfe</button>
-          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Magenschmerzen')">Magenschmerzen</button>
-          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Schwindel')">Schwindel</button>
-          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Sodbrennen')">Sodbrennen</button>
-          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Übelkeit')">Übelkeit</button>
-          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Verstopfung')">Verstopfung</button>
-          <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Völlegefühl')">Völlegefühl</button>
-        </div>
-      </div>
-      <div class="field">
-        <label>Symptome & Schweregrad</label>
-        <div id="edit-symptom-list"></div>
-        <div class="symptom-add-row">
-          <input type="text" id="edit-symptom-custom-input" placeholder="Weiteres Symptom…" onkeydown="if(event.key==='Enter'){event.preventDefault();addEditSymptomCustom();}" />
-          <button class="symptom-add-btn" onclick="addEditSymptomCustom()">+</button>
-        </div>
-      </div>
-      <div class="field">
-        <label>Stuhlgang – Bristol-Skala (optional)</label>
-        <div class="bristol-grid" id="edit-bristol-top"></div>
-        <div class="bristol-row2" id="edit-bristol-bottom"></div>
-        <div class="bristol-hint" id="edit-bristol-hint">Tippe auf einen Typ für eine Beschreibung.</div>
-      </div>
-      <div class="field">
-        <label>Stimmung (optional)</label>
-        <div class="mood-row">
-          <button class="mood-btn edit-mood-btn" data-mood="1" onclick="selectEditMood(1)">😔</button>
-          <button class="mood-btn edit-mood-btn" data-mood="2" onclick="selectEditMood(2)">😕</button>
-          <button class="mood-btn edit-mood-btn" data-mood="3" onclick="selectEditMood(3)">😐</button>
-          <button class="mood-btn edit-mood-btn" data-mood="4" onclick="selectEditMood(4)">🙂</button>
-          <button class="mood-btn edit-mood-btn" data-mood="5" onclick="selectEditMood(5)">😊</button>
-        </div>
-      </div>
-      <div class="field">
-        <label>Notizen (optional)</label>
-        <input type="text" id="edit-symptom-notes" />
+    <div class="field">
+      <label>Schnellauswahl</label>
+      <div class="quick-chips">
+        <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Appetitlosigkeit')">Appetitlosigkeit</button>
+        <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Aufgeblähter Bauch')">Aufgeblähter Bauch</button>
+        <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Aufstoßen')">Aufstoßen</button>
+        <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Bauchschmerzen')">Bauchschmerzen</button>
+        <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Blähungen')">Blähungen</button>
+        <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Kopfschmerzen')">Kopfschmerzen</button>
+        <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Krämpfe')">Krämpfe</button>
+        <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Magenschmerzen')">Magenschmerzen</button>
+        <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Schwindel')">Schwindel</button>
+        <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Sodbrennen')">Sodbrennen</button>
+        <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Übelkeit')">Übelkeit</button>
+        <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Verstopfung')">Verstopfung</button>
+        <button class="quick-chip chip-symptom" onclick="addEditSymptomChip('Völlegefühl')">Völlegefühl</button>
       </div>
     </div>
-
-    <!-- Medikament -->
-    <div id="edit-medication-section">
-      <div class="field">
-        <label>Medikamente</label>
-        <div id="edit-medication-chips" class="chips-row" style="margin-bottom:8px"></div>
-        <div id="edit-medication-list"></div>
-        <div class="symptom-add-row">
-          <input type="text" id="edit-medication-custom-input" placeholder="Weiteres Medikament…"
-            onkeydown="if(event.key==='Enter'){event.preventDefault();addEditMedicationCustom();}" />
-          <button class="symptom-add-btn" onclick="addEditMedicationCustom()">+</button>
-        </div>
-      </div>
-      <div class="field">
-        <label>Notizen (optional)</label>
-        <input type="text" id="edit-medication-notes" />
+    <div class="field">
+      <label>Symptome &amp; Schweregrad</label>
+      <div id="edit-symptom-list"></div>
+      <div class="symptom-add-row">
+        <input type="text" id="edit-symptom-custom-input" placeholder="Weiteres Symptom…"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();addEditSymptomCustom();}" />
+        <button class="symptom-add-btn" onclick="addEditSymptomCustom()">+</button>
       </div>
     </div>
+    <div class="field">
+      <label>Stuhlgang – Bristol-Skala (optional)</label>
+      <div class="bristol-grid" id="edit-bristol-top"></div>
+      <div class="bristol-row2" id="edit-bristol-bottom"></div>
+      <div class="bristol-hint" id="edit-bristol-hint">Tippe auf einen Typ für eine Beschreibung.</div>
+    </div>
+    <div class="field">
+      <label>Stimmung (optional)</label>
+      <div class="mood-row">
+        <button class="mood-btn edit-mood-btn" data-mood="1" onclick="selectEditMood(1)">😔</button>
+        <button class="mood-btn edit-mood-btn" data-mood="2" onclick="selectEditMood(2)">😕</button>
+        <button class="mood-btn edit-mood-btn" data-mood="3" onclick="selectEditMood(3)">😐</button>
+        <button class="mood-btn edit-mood-btn" data-mood="4" onclick="selectEditMood(4)">🙂</button>
+        <button class="mood-btn edit-mood-btn" data-mood="5" onclick="selectEditMood(5)">😊</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Notizen (optional)</label>
+      <input type="text" id="edit-symptom-notes" />
+    </div>
+    <button class="btn-save btn-symptom" onclick="saveEdit()">Änderungen speichern</button>
+  </div>
+</div>
 
-    <button class="btn-save btn-note" style="margin-top:8px" onclick="saveEdit()">Änderungen speichern</button>
-    <button id="edit-save-as-dish-btn" class="btn-secondary" style="margin-top:4px" onclick="saveEditMealAsDish()">Als Gericht speichern</button>
-    <button class="modal-cancel" onclick="closeEditModal()">Abbrechen</button>
+<!-- Edit screen: Medikament -->
+<div class="edit-screen" id="edit-screen-medication">
+  <div class="edit-screen-header medication-header">
+    <button class="edit-screen-back" onclick="closeEditModal()">← Zurück</button>
+    <span>Medikament bearbeiten</span>
+  </div>
+  <div class="card">
+    <div class="field">
+      <label>Datum & Uhrzeit</label>
+      <button class="dt-trigger" id="edit-medication-dt-display" onclick="openDtPicker('edit-medication-dt')">–</button>
+      <input type="hidden" id="edit-medication-dt" />
+      <div class="dt-quick-chips">
+        <button class="dt-quick-chip" onclick="setDtQuick('edit-medication-dt', 0)">Jetzt</button>
+        <button class="dt-quick-chip" onclick="setDtQuick('edit-medication-dt', 30)">−30min</button>
+        <button class="dt-quick-chip" onclick="setDtQuick('edit-medication-dt', 60)">−60min</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Schnellauswahl</label>
+      <div class="quick-chips" id="edit-medication-chips"></div>
+    </div>
+    <div class="field">
+      <label>Medikamente</label>
+      <div id="edit-medication-list"></div>
+      <div class="symptom-add-row">
+        <input type="text" id="edit-medication-custom-input" placeholder="Weiteres Medikament…"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();addEditMedicationCustom();}" />
+        <button class="symptom-add-btn" onclick="addEditMedicationCustom()">+</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Notizen (optional)</label>
+      <input type="text" id="edit-medication-notes" />
+    </div>
+    <button class="btn-save btn-medication" onclick="saveEdit()">Änderungen speichern</button>
   </div>
 </div>
 
@@ -546,7 +583,7 @@
 <script src="js/helpers.js?v=6"></script>
 <script src="js/storage.js?v=6"></script>
 <script src="js/datetime.js?v=4"></script>
-<script src="js/edit.js?v=10"></script>
+<script src="js/edit.js?v=11"></script>
 <script src="js/symptom.js?v=5"></script>
 <script src="js/meal.js?v=12"></script>
 <script src="js/note.js?v=5"></script>

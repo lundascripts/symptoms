@@ -141,9 +141,13 @@ function setDtQuick(targetId, offsetMinutes) {
   }
 }
 
-function setEditDtQuick(offsetMinutes) {
+function setDtDisplay(targetId, isoString) {
   const pad = n => String(n).padStart(2, '0');
-  const d = new Date(Date.now() - offsetMinutes * 60000);
-  document.getElementById('edit-dt').value =
-    `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  document.getElementById(targetId).value = isoString;
+  const display = document.getElementById(targetId + '-display');
+  if (display && isoString) {
+    const d = new Date(isoString);
+    display.textContent = d.toLocaleDateString('de-DE', {weekday:'short', day:'numeric', month:'numeric'})
+      + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }
 }
