@@ -128,3 +128,22 @@ function confirmDtPicker() {
   }
   document.getElementById('dt-picker-modal').classList.remove('open');
 }
+
+function setDtQuick(targetId, offsetMinutes) {
+  const pad = n => String(n).padStart(2, '0');
+  const d = new Date(Date.now() - offsetMinutes * 60000);
+  const value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  document.getElementById(targetId).value = value;
+  const display = document.getElementById(targetId + '-display');
+  if (display) {
+    display.textContent = d.toLocaleDateString('de-DE', {weekday:'short', day:'numeric', month:'numeric'})
+      + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }
+}
+
+function setEditDtQuick(offsetMinutes) {
+  const pad = n => String(n).padStart(2, '0');
+  const d = new Date(Date.now() - offsetMinutes * 60000);
+  document.getElementById('edit-dt').value =
+    `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}

@@ -50,6 +50,11 @@
           <label>Datum & Uhrzeit</label>
           <button class="dt-trigger" id="meal-dt-display" onclick="openDtPicker('meal-dt')">–</button>
           <input type="hidden" id="meal-dt" />
+          <div class="dt-quick-chips">
+            <button class="dt-quick-chip" onclick="setDtQuick('meal-dt', 0)">Jetzt</button>
+            <button class="dt-quick-chip" onclick="setDtQuick('meal-dt', 30)">−30min</button>
+            <button class="dt-quick-chip" onclick="setDtQuick('meal-dt', 60)">−60min</button>
+          </div>
         </div>
 
         <div class="field" id="meal-favorites-field" style="display:none">
@@ -100,6 +105,11 @@
           <label>Datum & Uhrzeit</label>
           <button class="dt-trigger" id="symptom-dt-display" onclick="openDtPicker('symptom-dt')">–</button>
           <input type="hidden" id="symptom-dt" />
+          <div class="dt-quick-chips">
+            <button class="dt-quick-chip" onclick="setDtQuick('symptom-dt', 0)">Jetzt</button>
+            <button class="dt-quick-chip" onclick="setDtQuick('symptom-dt', 30)">−30min</button>
+            <button class="dt-quick-chip" onclick="setDtQuick('symptom-dt', 60)">−60min</button>
+          </div>
         </div>
 
         <div class="field">
@@ -166,6 +176,11 @@
           <label>Datum & Uhrzeit</label>
           <button class="dt-trigger" id="medication-dt-display" onclick="openDtPicker('medication-dt')">–</button>
           <input type="hidden" id="medication-dt" />
+          <div class="dt-quick-chips">
+            <button class="dt-quick-chip" onclick="setDtQuick('medication-dt', 0)">Jetzt</button>
+            <button class="dt-quick-chip" onclick="setDtQuick('medication-dt', 30)">−30min</button>
+            <button class="dt-quick-chip" onclick="setDtQuick('medication-dt', 60)">−60min</button>
+          </div>
         </div>
 
         <div class="field">
@@ -394,6 +409,11 @@
     <div class="field">
       <label>Datum & Uhrzeit</label>
       <input type="datetime-local" id="edit-dt" />
+      <div class="dt-quick-chips">
+        <button class="dt-quick-chip" onclick="setEditDtQuick(0)">Jetzt</button>
+        <button class="dt-quick-chip" onclick="setEditDtQuick(30)">−30min</button>
+        <button class="dt-quick-chip" onclick="setEditDtQuick(60)">−60min</button>
+      </div>
     </div>
 
     <!-- Mahlzeit -->

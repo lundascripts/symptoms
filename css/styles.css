@@ -677,6 +677,14 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .dt-trigger:active { border-color: var(--accent-meal); }
 
+.dt-quick-chips { display: flex; gap: 6px; margin-top: 6px; }
+.dt-quick-chip {
+  flex: 1; padding: 7px 0; font-size: 13px; font-weight: 500;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); cursor: pointer; color: var(--text2);
+}
+.dt-quick-chip:active { background: var(--accent-meal-light); border-color: var(--accent-meal); color: var(--accent-meal); }
+
 /* ── Datetime Picker Popup ── */
 .dt-picker { padding: 16px; max-width: 340px; }
 
