@@ -237,8 +237,8 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 /* ── Bristol Scale ── */
-.bristol-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-.bristol-row2 { display: none; }
+.bristol-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.bristol-row2 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 6px; }
 
 .bristol-btn {
   border: 2px solid var(--border);
