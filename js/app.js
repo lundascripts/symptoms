@@ -21,6 +21,9 @@ if (!window._appInited) {
     initSwipe();
     autoSync();
     initBackButton();
+    if (typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform()) {
+      document.body.classList.add('is-native');
+    }
   });
 }
 
