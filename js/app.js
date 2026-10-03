@@ -20,6 +20,7 @@ if (!window._appInited) {
     document.querySelector('[data-filter="all"]').classList.add('active');
     initSwipe();
     autoSync();
+    initBackButton();
   });
 }
 
@@ -45,6 +46,44 @@ function initSwipe() {
     if (dx < 0 && i < TABS.length - 1) switchTab(TABS[i + 1]);
     if (dx > 0 && i > 0) switchTab(TABS[i - 1]);
   }, { passive: true });
+}
+
+function handleBackButton() {
+  // Priorität: spezifischstes Overlay zuerst schließen
+  if (document.getElementById('confirm-modal').classList.contains('open')) {
+    document.getElementById('confirm-modal').classList.remove('open');
+    return;
+  }
+  if (document.getElementById('dt-picker-modal').classList.contains('open')) {
+    closeDtPicker();
+    return;
+  }
+  if (document.getElementById('edit-screen-meal').classList.contains('open') ||
+      document.getElementById('edit-screen-symptom').classList.contains('open') ||
+      document.getElementById('edit-screen-medication').classList.contains('open')) {
+    closeEditModal();
+    return;
+  }
+  if (document.getElementById('dish-modal').classList.contains('open')) {
+    closeDishModal();
+    return;
+  }
+  if (document.getElementById('export-modal').classList.contains('open')) {
+    closeExport();
+    return;
+  }
+  // Nichts offen: App minimieren (nur Android)
+  if (typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform()) {
+    Capacitor.Plugins.App?.minimizeApp?.();
+  }
+}
+
+function initBackButton() {
+  // Android Hardware-Zurück-Button (Capacitor)
+  document.addEventListener('backbutton', e => {
+    e.preventDefault();
+    handleBackButton();
+  });
 }
 
 function switchTab(tab) {
