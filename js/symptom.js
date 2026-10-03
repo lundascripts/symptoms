@@ -58,10 +58,9 @@ function renderSymptomRows() {
   `).join('');
 }
 
-function addSymptomChip(name) {
+function _doAddSymptomChip(name) {
   const existing = symptomRows.findIndex(r => r.name.toLowerCase() === name.toLowerCase());
   if (existing !== -1) {
-    // Highlight the existing row briefly
     const rows = document.querySelectorAll('.symptom-row');
     if (rows[existing]) {
       rows[existing].classList.add('symptom-row-highlight');
@@ -71,6 +70,29 @@ function addSymptomChip(name) {
   }
   symptomRows.push({ name, severity: 5 });
   renderSymptomRows();
+}
+
+function addSymptomChip(name) {
+  const input = document.getElementById('symptom-custom-input');
+  const typed = input ? input.value.trim() : '';
+  if (typed) {
+    showConfirm(
+      `Im Eingabefeld steht noch „${typed}". Was soll damit passieren?`,
+      'Übernehmen', 'Verwerfen',
+      () => {
+        const ex = symptomRows.findIndex(r => r.name.toLowerCase() === typed.toLowerCase());
+        if (ex === -1) symptomRows.push({ name: typed, severity: 5 });
+        if (input) input.value = '';
+        _doAddSymptomChip(name);
+      },
+      () => {
+        if (input) input.value = '';
+        _doAddSymptomChip(name);
+      }
+    );
+    return;
+  }
+  _doAddSymptomChip(name);
 }
 
 function addSymptomCustom() {

@@ -69,12 +69,11 @@ function hideMealAutocomplete() {
   if (el) el.style.display = 'none';
 }
 
-function selectMealNameAutocomplete(id) {
+function _applyMealTemplate(id) {
   const d = getMealTemplates().find(d => d.id === id);
   if (!d) return;
   document.getElementById('meal-food-input').value = d.name;
   hideMealAutocomplete();
-  // prefill ingredients from components or text
   mealEntryIngredients = [];
   const compNames = _resolveComponentNames(d);
   if (compNames.length) {
@@ -84,12 +83,23 @@ function selectMealNameAutocomplete(id) {
       return t ? { id: t.id, name: t.name, components: _resolveComponentObjects(t) } : null;
     }).filter(Boolean);
   } else if (d.text) {
-    // split free text by comma or newline as individual ingredients
     mealEntryIngredients = d.text.split(/[,\n]/).map(s => s.trim()).filter(Boolean)
       .map(name => ({ id: null, name, components: [] }));
   }
   renderMealIngredientList();
   document.getElementById('meal-ingredient-input').focus();
+}
+
+function selectMealNameAutocomplete(id) {
+  const currentName = document.getElementById('meal-food-input').value.trim();
+  const hasContent = currentName || mealEntryIngredients.length > 0;
+  if (!hasContent) { _applyMealTemplate(id); return; }
+  showConfirm(
+    `Im Formular steht bereits „${currentName || 'eine Eingabe'}". Was soll damit passieren?`,
+    'Übernehmen', 'Verwerfen',
+    () => { commitMealEntry(); _applyMealTemplate(id); },
+    () => { _clearMealEntry(); _applyMealTemplate(id); }
+  );
 }
 
 // ── Ingredient autocomplete ──
@@ -164,7 +174,21 @@ function _pushIngredient(ing) {
 
 // ── Commit / save as dish ──
 
+function _flushIngredientInput() {
+  const val = document.getElementById('meal-ingredient-input').value.trim();
+  if (!val) return;
+  const matched = getMealTemplates().find(d => d.name.toLowerCase() === val.toLowerCase());
+  if (matched) {
+    _pushIngredient({ id: matched.id, name: matched.name, components: _resolveAllIngredients(matched) });
+  } else {
+    _pushIngredient({ id: null, name: val, components: [] });
+  }
+  document.getElementById('meal-ingredient-input').value = '';
+  hideMealIngredientAutocomplete();
+}
+
 function commitMealEntry() {
+  _flushIngredientInput();
   const name = document.getElementById('meal-food-input').value.trim();
   if (!name) { toast('Bitte einen Namen eingeben.'); return; }
   const label = mealEntryIngredients.length

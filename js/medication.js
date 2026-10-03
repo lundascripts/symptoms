@@ -45,7 +45,18 @@ function renderMedicationRows() {
   `; }).join('');
 }
 
-function addMedicationChip(name) {
+function _getLastDoseFor(name) {
+  const entries = getEntries();
+  for (let i = entries.length - 1; i >= 0; i--) {
+    const e = entries[i];
+    if (e.type !== 'medication') continue;
+    const med = (e.medications || []).find(m => m.name.toLowerCase() === name.toLowerCase());
+    if (med && med.dose) return med.dose;
+  }
+  return '';
+}
+
+function _doAddMedicationChip(name) {
   const existing = medicationRows.findIndex(r => r.name.toLowerCase() === name.toLowerCase());
   if (existing !== -1) {
     const rows = document.querySelectorAll('#medication-list .symptom-row');
@@ -55,8 +66,32 @@ function addMedicationChip(name) {
     }
     return;
   }
-  medicationRows.push({ name, dose: '' });
+  medicationRows.push({ name, dose: _getLastDoseFor(name) });
   renderMedicationRows();
+}
+
+function addMedicationChip(name) {
+  const input = document.getElementById('medication-custom-input');
+  const typed = input ? input.value.trim() : '';
+  if (typed) {
+    showConfirm(
+      `Im Eingabefeld steht noch „${typed}". Was soll damit passieren?`,
+      'Übernehmen', 'Verwerfen',
+      () => {
+        const ex = medicationRows.findIndex(r => r.name.toLowerCase() === typed.toLowerCase());
+        if (ex === -1) medicationRows.push({ name: typed, dose: '' });
+        if (input) input.value = '';
+        _doAddMedicationChip(name);
+        renderMedicationRows();
+      },
+      () => {
+        if (input) input.value = '';
+        _doAddMedicationChip(name);
+      }
+    );
+    return;
+  }
+  _doAddMedicationChip(name);
 }
 
 function addMedicationCustom() {
