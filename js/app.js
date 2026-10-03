@@ -12,6 +12,8 @@ if (!window._appInited) {
     renderMealFavoriteChips();
     renderMedicationChips();
     renderUsedTermsList();
+    renderRecentSymptomChips();
+    renderRecentSymptomsManageList();
     loadTodayNote();
     updateNotifStatus();
     scheduleReminders();

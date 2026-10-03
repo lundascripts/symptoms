@@ -118,6 +118,8 @@ function saveSymptom() {
     notes: document.getElementById('symptom-notes').value.trim() || null,
   });
   saveEntries(entries);
+  if (symptomRows.length) addRecentSymptoms(symptomRows.map(r => r.name));
+  renderRecentSymptomChips();
 
   symptomRows = [];
   renderSymptomRows();
@@ -129,4 +131,55 @@ function saveSymptom() {
   setNow('symptom-dt');
   toast('Symptom gespeichert ✓');
   autoSync();
+}
+
+function renderRecentSymptomChips() {
+  const recent = getRecentSymptoms();
+  ['recent-symptom-chips', 'edit-recent-symptom-chips'].forEach(id => {
+    const el = document.getElementById(id);
+    const field = document.getElementById(id + '-field');
+    if (!el) return;
+    if (!recent.length) { if (field) field.style.display = 'none'; return; }
+    if (field) field.style.display = '';
+    const isEdit = id.startsWith('edit-');
+    el.innerHTML = recent.map(name =>
+      `<button class="quick-chip chip-symptom" onclick="${isEdit ? 'addEditSymptomChip' : 'addSymptomChip'}('${esc(name)}')">${esc(name)}</button>`
+    ).join('');
+  });
+}
+
+function renderRecentSymptomsManageList() {
+  const el = document.getElementById('recent-symptoms-manage-list');
+  if (!el) return;
+  const recent = getRecentSymptoms();
+  if (!recent.length) {
+    el.innerHTML = '<p style="font-size:14px;color:var(--text2)">Noch keine Symptome gespeichert.</p>';
+    return;
+  }
+  el.innerHTML = recent.map((name, i) => `
+    <div class="symptom-row" style="margin-bottom:6px">
+      <div class="symptom-row-name">${esc(name)}</div>
+      <div class="symptom-row-controls">
+        <button class="symptom-row-del" onclick="removeRecentSymptom(${i})">×</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function removeRecentSymptom(i) {
+  const recent = getRecentSymptoms();
+  recent.splice(i, 1);
+  saveRecentSymptoms(recent);
+  renderRecentSymptomsManageList();
+  renderRecentSymptomChips();
+}
+
+function addManualRecentSymptom() {
+  const input = document.getElementById('recent-symptom-add-input');
+  const name = input.value.trim();
+  if (!name) return;
+  addRecentSymptoms([name]);
+  input.value = '';
+  renderRecentSymptomsManageList();
+  renderRecentSymptomChips();
 }

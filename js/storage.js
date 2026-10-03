@@ -38,6 +38,21 @@ function addUsedTerms(names) {
   }
 }
 
+function getRecentSymptoms() {
+  try { return JSON.parse(localStorage.getItem('tagebuch_recent_symptoms') || '[]'); } catch { return []; }
+}
+function saveRecentSymptoms(s) { localStorage.setItem('tagebuch_recent_symptoms', JSON.stringify(s)); }
+function addRecentSymptoms(names) {
+  const MAX = 15;
+  let recent = getRecentSymptoms();
+  names.forEach(name => {
+    if (!name) return;
+    recent = recent.filter(r => r.toLowerCase() !== name.toLowerCase());
+    recent.unshift(name);
+  });
+  saveRecentSymptoms(recent.slice(0, MAX));
+}
+
 function getMealFollowupTimes() {
   try { return JSON.parse(localStorage.getItem('tagebuch_meal_followup_times') || '[]'); } catch { return []; }
 }

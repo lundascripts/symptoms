@@ -193,6 +193,7 @@ function saveEdit() {
     entry.bristol = editSelectedBristol || null;
     entry.mood = editSelectedMood || null;
     entry.notes = document.getElementById('edit-symptom-notes').value.trim() || null;
+    if (editSymptomRows.length) addRecentSymptoms(editSymptomRows.map(r => r.name));
   }
 
   saveEntries(entries);
