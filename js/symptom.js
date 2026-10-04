@@ -1,3 +1,9 @@
+const SYMPTOM_QUICK_DEFAULTS = [
+  'Appetitlosigkeit','Aufgeblähter Bauch','Aufstoßen','Bauchschmerzen','Blähungen',
+  'Kopfschmerzen','Krämpfe','Magenschmerzen','Schwindel','Sodbrennen','Übelkeit',
+  'Verstopfung','Völlegefühl',
+];
+
 const bristolData = [
   { n: 1, short: 'Harte Klumpen',   desc: 'Separate harte Klumpen, schwer auszuscheiden — starke Verstopfung' },
   { n: 2, short: 'Klumpig-wurstf.', desc: 'Wurstförmig, klumpig und hart — leichte Verstopfung' },

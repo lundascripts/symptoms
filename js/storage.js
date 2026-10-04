@@ -44,9 +44,12 @@ function getRecentSymptoms() {
 function saveRecentSymptoms(s) { localStorage.setItem('tagebuch_recent_symptoms', JSON.stringify(s)); }
 function addRecentSymptoms(names) {
   const MAX = 15;
+  const defaults = typeof SYMPTOM_QUICK_DEFAULTS !== 'undefined'
+    ? new Set(SYMPTOM_QUICK_DEFAULTS.map(s => s.toLowerCase())) : new Set();
   let recent = getRecentSymptoms();
   names.forEach(name => {
     if (!name) return;
+    if (defaults.has(name.toLowerCase())) return;
     recent = recent.filter(r => r.toLowerCase() !== name.toLowerCase());
     recent.unshift(name);
   });
