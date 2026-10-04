@@ -98,7 +98,7 @@ function selectMealNameAutocomplete(id) {
   if (currentName) {
     showConfirm(
       `Im Formular steht bereits „${currentName}". Was soll damit passieren?`,
-      'Übernehmen', 'Verwerfen',
+      'Speichern', 'Löschen',
       () => { commitMealEntry(); _applyMealTemplate(id); },
       () => { _clearMealEntry(); _applyMealTemplate(id); }
     );
@@ -291,7 +291,7 @@ function editMealRow(i) {
   if (currentName) {
     showConfirm(
       `Im Formular steht bereits „${currentName}". Was soll damit passieren?`,
-      'Übernehmen', 'Verwerfen',
+      'Speichern', 'Löschen',
       () => { commitMealEntry(); _doEditMealRow(i); },
       () => { _clearMealEntry(); _doEditMealRow(i); }
     );

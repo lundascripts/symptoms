@@ -292,7 +292,7 @@ function editEditMealRow(i) {
   if (currentName) {
     showConfirm(
       `Im Formular steht bereits „${currentName}". Was soll damit passieren?`,
-      'Übernehmen', 'Verwerfen',
+      'Speichern', 'Löschen',
       () => { commitEditMealEntry(); _doEditEditMealRow(i); },
       () => { _clearEditMealEntry(); _doEditEditMealRow(i); }
     );
