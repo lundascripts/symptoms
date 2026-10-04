@@ -62,6 +62,7 @@ function onMealInput() {
 
 function onMealKeydown(e) {
   if (e.key === 'Escape') hideMealAutocomplete();
+  if (e.key === 'Enter') { e.preventDefault(); hideMealAutocomplete(); commitMealEntry(); }
 }
 
 function hideMealAutocomplete() {
